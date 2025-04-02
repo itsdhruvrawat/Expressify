@@ -1,0 +1,80 @@
+{% extends "layout.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+    <h1>{{ title }}</h1>
+    <div class="card">
+        <p>{{ content }}</p>
+    </div>
+    
+    <h2>How Templates Work in Expressify</h2>
+    <div class="card">
+        <p>Templates in Expressify are rendered using the following pattern:</p>
+        <pre style="background-color: #f4f4f4; padding: 10px; border-radius: 4px; overflow-x: auto;">
+# Set up the template engine
+app.set('view engine', 'jinja2')
+app.set('views', './views')
+
+# Render a template with data
+@app.get('/route')
+def handler(req, res):
+    res.render('template.html', {
+        'title': 'Page Title',
+        'data': some_data
+    })
+        </pre>
+    </div>
+    
+    <h2>Template Features</h2>
+    <div class="card">
+        <h3>Variables</h3>
+        <code>{{ "{{ variable_name }}" }}</code>
+        
+        <h3>Conditionals</h3>
+        <pre style="background-color: #f4f4f4; padding: 10px; border-radius: 4px; overflow-x: auto;">
+{% raw %}
+{% if condition %}
+    <!-- HTML when condition is true -->
+{% else %}
+    <!-- HTML when condition is false -->
+{% endif %}
+{% endraw %}
+        </pre>
+        
+        <h3>Loops</h3>
+        <pre style="background-color: #f4f4f4; padding: 10px; border-radius: 4px; overflow-x: auto;">
+{% raw %}
+{% for item in items %}
+    <!-- HTML for each item -->
+    {{ item.name }}
+{% endfor %}
+{% endraw %}
+        </pre>
+        
+        <h3>Template Inheritance</h3>
+        <pre style="background-color: #f4f4f4; padding: 10px; border-radius: 4px; overflow-x: auto;">
+{% raw %}
+<!-- In layout.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}{% endblock %}</title>
+</head>
+<body>
+    {% block content %}{% endblock %}
+</body>
+</html>
+
+<!-- In page.html -->
+{% extends "layout.html" %}
+
+{% block title %}Page Title{% endblock %}
+
+{% block content %}
+    <h1>Page Content</h1>
+{% endblock %}
+{% endraw %}
+        </pre>
+    </div>
+{% endblock %}

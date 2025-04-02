@@ -1,0 +1,23 @@
+{% extends "layout.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+    <h1>{{ product.name }}</h1>
+    
+    <div class="card">
+        <p><strong>ID:</strong> {{ product.id }}</p>
+        <p><strong>Price:</strong> ${{ product.price }}</p>
+        <p><strong>Category:</strong> {{ product.category }}</p>
+        <p>
+            <strong>Status:</strong>
+            {% if product.in_stock %}
+                <span style="color: green;">In Stock</span>
+            {% else %}
+                <span style="color: red;">Out of Stock</span>
+            {% endif %}
+        </p>
+    </div>
+    
+    <p><a href="/products" class="btn">&larr; Back to Products</a></p>
+{% endblock %}

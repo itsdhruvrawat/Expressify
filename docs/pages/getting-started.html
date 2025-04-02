@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Getting Started - Expressify</title>
+    <script src="https://cdn.tailwindcss.com/3.4.0"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        },
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .transition-colors {
+                transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+                transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+                transition-duration: 150ms;
+            }
+            .gradient-border {
+                position: relative;
+                border-radius: 0.5rem;
+            }
+            .gradient-border::before {
+                content: "";
+                position: absolute;
+                inset: 0;
+                border-radius: 0.5rem;
+                padding: 2px;
+                background: linear-gradient(to right, #0ea5e9, #3b82f6);
+                -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+                -webkit-mask-composite: xor;
+                mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+                mask-composite: exclude;
+                pointer-events: none;
+            }
+            .code-window {
+                position: relative;
+                border-radius: 0.5rem;
+                overflow: hidden;
+            }
+            .code-window-header {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 2rem;
+                background: #1e293b;
+                display: flex;
+                align-items: center;
+                padding-left: 1rem;
+            }
+            .code-window-body {
+                padding-top: 2rem;
+            }
+            .code-dot {
+                width: 0.75rem;
+                height: 0.75rem;
+                border-radius: 50%;
+                margin-right: 0.5rem;
+            }
+            .floating {
+                animation: floating 3s ease-in-out infinite;
+            }
+            @keyframes floating {
+                0% { transform: translateY(0px); }
+                50% { transform: translateY(-10px); }
+                100% { transform: translateY(0px); }
+            }
+        }
+    </style>
+    <style>
+        .code-tab {
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        .code-tab.active {
+            border-bottom: 2px solid #0ea5e9;
+            color: #0ea5e9;
+        }
+        .code-block {
+            position: relative;
+        }
+        .copy-button {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background-color: rgba(0, 0, 0, 0.3);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .copy-button:hover {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+    <!-- Header -->
+    <header class="bg-primary-700 text-white">
+        <div class="container mx-auto px-4 py-6">
+            <nav class="flex flex-wrap items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <a href="../index.html" class="flex items-center gap-2">
+                        <i class="fas fa-bolt text-2xl"></i>
+                        <span class="text-2xl font-bold">Expressify</span>
+                    </a>
+                </div>
+                <div class="md:hidden flex items-center gap-4">
+                    <button id="theme-toggle-mobile" class="p-2 rounded bg-primary-600 dark:bg-gray-700 text-white hover:bg-primary-700 dark:hover:bg-gray-600 transition-colors">
+                        <i class="fas fa-moon dark:hidden"></i>
+                        <i class="fas fa-sun hidden dark:inline"></i>
+                    </button>
+                    <button id="mobile-menu-button" class="p-2 rounded hover:bg-primary-600">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+                <div id="menu" class="hidden md:flex w-full md:w-auto mt-4 md:mt-0 absolute md:relative left-0 right-0 top-16 md:top-auto bg-gray-900 md:bg-transparent z-50 px-4 py-2 md:p-0 shadow-lg md:shadow-none">
+                    <ul class="flex flex-col md:flex-row md:gap-6">
+                        <li><a href="../index.html" class="block py-2 px-4 font-medium hover:text-primary-300">Home</a></li>
+                        <li><a href="getting-started.html" class="block py-2 px-4 font-medium text-primary-300">Getting Started</a></li>
+                        <li><a href="examples.html" class="block py-2 px-4 font-medium hover:text-primary-300">Examples</a></li>
+                        <li><a href="api-reference.html" class="block py-2 px-4 font-medium hover:text-primary-300">API Reference</a></li>
+                        <li><a href="about.html" class="block py-2 px-4 font-medium hover:text-primary-300">About</a></li>
+                    </ul>
+                </div>
+                <div class="hidden md:flex items-center gap-3">
+                    <a href="https://discord.gg/expressify" class="inline-flex items-center gap-1 py-2 px-4 rounded bg-indigo-600 text-white hover:bg-indigo-700 font-medium transition-colors">
+                        <i class="fab fa-discord"></i> Join Discord
+                    </a>
+                    <a href="https://github.com/itsdhruvrawat/expressify" class="inline-flex items-center gap-1 py-2 px-4 rounded bg-white text-primary-700 dark:bg-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 font-medium transition-colors">
+                        <i class="fab fa-github"></i> GitHub
+                    </a>
+                    <button id="theme-toggle" class="p-2 rounded bg-primary-600 dark:bg-gray-700 text-white hover:bg-primary-700 dark:hover:bg-gray-600 transition-colors">
+                        <i class="fas fa-moon dark:hidden"></i>
+                        <i class="fas fa-sun hidden dark:inline"></i>
+                    </button>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Page Content -->
+    <div class="container mx-auto px-4 py-12">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <!-- Sidebar -->
+            <div class="lg:col-span-1">
+                <div class="sticky top-8">
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-6">
+                        <h3 class="text-lg font-bold mb-4 flex items-center">
+                            <span class="w-8 h-8 bg-primary-500 rounded-full flex items-center justify-center text-white mr-2">
+                                <i class="fas fa-book"></i>
+                            </span>
+                            Getting Started
+                        </h3>
+                        <ul class="space-y-3">
+                            <li>
+                                <a href="#installation" class="flex items-center p-2 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 hover:bg-primary-50 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                                    <i class="fas fa-download w-5 text-center mr-2"></i>
+                                    <span>Installation</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#first-app" class="flex items-center p-2 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 hover:bg-primary-50 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                                    <i class="fas fa-rocket w-5 text-center mr-2"></i>
+                                    <span>Your First App</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#routing" class="flex items-center p-2 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 hover:bg-primary-50 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                                    <i class="fas fa-route w-5 text-center mr-2"></i>
+                                    <span>Routing</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#request-response" class="flex items-center p-2 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 hover:bg-primary-50 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                                    <i class="fas fa-exchange-alt w-5 text-center mr-2"></i>
+                                    <span>Request & Response</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#development-server" class="flex items-center p-2 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 hover:bg-primary-50 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                                    <i class="fas fa-sync-alt w-5 text-center mr-2"></i>
+                                    <span>Development Server</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#middleware" class="flex items-center p-2 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 hover:bg-primary-50 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                                    <i class="fas fa-layer-group w-5 text-center mr-2"></i>
+                                    <span>Middleware</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#templates" class="flex items-center p-2 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 hover:bg-primary-50 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                                    <i class="fas fa-file-code w-5 text-center mr-2"></i>
+                                    <span>Template Rendering</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#static-files" class="flex items-center p-2 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 hover:bg-primary-50 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                                    <i class="fas fa-folder-open w-5 text-center mr-2"></i>
+                                    <span>Static Files</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#next-steps" class="flex items-center p-2 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 hover:bg-primary-50 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                                    <i class="fas fa-chevron-right w-5 text-center mr-2"></i>
+                                    <span>Next Steps</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-gradient-to-br from-primary-600 to-blue-600 rounded-xl p-6 text-white">
+                        <div class="flex items-center mb-4">
+                            <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-lightbulb text-yellow-300"></i>
+                            </div>
+                            <h4 class="font-bold">Pro Tip</h4>
+                        </div>
+                        <p class="text-white/90 mb-4">Follow along with the code samples by typing them into your editor to better understand how Expressify works.</p>
+                        <a href="https://github.com/itsdhruvrawat/expressify/tree/main/examples" class="inline-flex items-center text-white font-medium hover:underline">
+                            Browse examples
+                            <i class="fas fa-arrow-right ml-2 text-sm"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="lg:col-span-3">
+                <div class="relative mb-12">
+                    <div class="absolute top-0 left-0 w-24 h-24 bg-primary-500/20 rounded-full filter blur-2xl"></div>
+                    <div class="absolute bottom-0 right-0 w-32 h-32 bg-blue-500/20 rounded-full filter blur-2xl"></div>
+                    <div class="relative">
+                        <h1 class="text-4xl sm:text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-blue-600">Getting Started with Expressify</h1>
+                        <p class="text-xl text-gray-600 dark:text-gray-300 max-w-2xl">Everything you need to know to get up and running with Expressify - the Express.js-inspired framework for Python.</p>
+                    </div>
+                </div>
+                
+                <!-- Installation -->
+                <section id="installation" class="mb-16">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 bg-primary-100 dark:bg-primary-900/30 rounded-xl flex items-center justify-center mr-4">
+                            <i class="fas fa-download text-2xl text-primary-600 dark:text-primary-400"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold">Installation</h2>
+                    </div>
+                    
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-8">
+                        <p class="mb-4">Expressify requires Python 3.7 or higher. You can install it using pip:</p>
+                        
+                        <div class="code-window mb-6">
+                            <div class="code-window-header">
+                                <div class="code-dot bg-red-500"></div>
+                                <div class="code-dot bg-yellow-500"></div>
+                                <div class="code-dot bg-green-500"></div>
+                                <span class="text-xs text-gray-400 ml-2">Terminal</span>
+                            </div>
+                            <div class="code-window-body bg-gray-900 p-4 rounded-b-lg">
+                                <pre class="text-gray-300"><code>pip install expressify</code></pre>
+                            </div>
+                        </div>
+                        
+                        <p class="mb-4">Or install from source:</p>
+                        
+                        <div class="code-window">
+                            <div class="code-window-header">
+                                <div class="code-dot bg-red-500"></div>
+                                <div class="code-dot bg-yellow-500"></div>
+                                <div class="code-dot bg-green-500"></div>
+                                <span class="text-xs text-gray-400 ml-2">Terminal</span>
+                            </div>
+                            <div class="code-window-body bg-gray-900 p-4 rounded-b-lg">
+                                <pre class="text-gray-300"><code>git clone https://github.com/itsdhruvrawat/expressify.git
+cd expressify
+pip install -e .</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-4 border-l-4 border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20 rounded-r-lg flex items-start">
+                        <i class="fas fa-info-circle text-yellow-500 mt-1 mr-3"></i>
+                        <div>
+                            <h4 class="font-semibold text-yellow-800 dark:text-yellow-400">Note</h4>
+                            <p class="text-yellow-700 dark:text-yellow-300">Make sure to have the latest version of pip installed to avoid any compatibility issues.</p>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Your First App -->
+                <section id="first-app" class="mb-16">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 bg-primary-100 dark:bg-primary-900/30 rounded-xl flex items-center justify-center mr-4">
+                            <i class="fas fa-rocket text-2xl text-primary-600 dark:text-primary-400"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold">Your First App</h2>
+                    </div>
+                    
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-8">
+                        <p class="mb-4">Let's create a simple "Hello, World!" application with Expressify:</p>
+                        
+                        <div class="code-window mb-6">
+                            <div class="code-window-header">
+                                <div class="code-dot bg-red-500"></div>
+                                <div class="code-dot bg-yellow-500"></div>
+                                <div class="code-dot bg-green-500"></div>
+                                <span class="text-xs text-gray-400 ml-2">app.py</span>
+                            </div>
+                            <div class="code-window-body bg-gray-900 p-4 rounded-b-lg">
+                                <pre class="language-python"><code class="language-python">from expressify import expressify
+
+# Create a new application
+app = expressify()
+
+# Define a route for the home page
+@app.get('/')
+def home(req, res):
+    res.send('Hello, World!')
+
+# Start the server
+if __name__ == '__main__':
+    app.listen(port=3000, hostname='127.0.0.1')  # Defaults to 127.0.0.1:3000</code></pre>
+                            </div>
+                        </div>
+                        
+                        <p class="mb-4">Save this code to a file named <code class="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded">app.py</code> and run it:</p>
+                        
+                        <div class="code-window mb-6">
+                            <div class="code-window-header">
+                                <div class="code-dot bg-red-500"></div>
+                                <div class="code-dot bg-yellow-500"></div>
+                                <div class="code-dot bg-green-500"></div>
+                                <span class="text-xs text-gray-400 ml-2">Terminal</span>
+                            </div>
+                            <div class="code-window-body bg-gray-900 p-4 rounded-b-lg">
+                                <pre class="text-gray-300"><code>python app.py</code></pre>
+                            </div>
+                        </div>
+                        
+                        <div class="code-window">
+                            <div class="code-window-header bg-gray-800">
+                                <div class="code-dot bg-red-500"></div>
+                                <div class="code-dot bg-yellow-500"></div>
+                                <div class="code-dot bg-green-500"></div>
+                                <span class="text-xs text-gray-400 ml-2">Output</span>
+                            </div>
+                            <div class="code-window-body bg-gray-800 p-4 rounded-b-lg">
+                                <pre class="text-green-400"><code>Expressify server running on http://127.0.0.1:3000
+Press CTRL+C to quit</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-4 rounded-xl gradient-border bg-white dark:bg-gray-800 flex items-center">
+                        <div class="mr-6 flex-shrink-0">
+                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/chrome/chrome-original.svg" class="w-16 h-16" alt="Browser icon">
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-lg mb-1">See it in action</h4>
+                            <p class="text-gray-600 dark:text-gray-300">Open your web browser and navigate to <a href="http://127.0.0.1:3000" class="text-primary-600 dark:text-primary-400 font-medium hover:underline">http://127.0.0.1:3000</a> to see "Hello, World!" displayed.</p>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Development Server with Hot Reloading -->
+                <section class="mb-16" id="development-server">
+                    <h2 class="text-2xl font-semibold mb-4">Development Server with Hot Reloading</h2>
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 bg-primary-100 dark:bg-primary-900/30 rounded-xl flex items-center justify-center mr-4">
+                            <i class="fas fa-sync-alt text-2xl text-primary-600 dark:text-primary-400"></i>
+                                </div>
+                        <h2 class="text-3xl font-bold">Development Server</h2>
+                    </div>
+                    
+                    <p class="mb-4">Expressify includes a development server with hot reloading capabilities to make your development workflow more efficient. When you run your application with <code>dev.py</code>, it automatically detects file changes and restarts your application in real-time.</p>
+                    
+                    <div class="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg mb-4 overflow-x-auto">
+                        <pre class="text-sm text-gray-800 dark:text-gray-200">
+🔥 Expressify development server starting...
+📁 Application: app.py
+🚀 Starting application: app.py
+📤 Server running at http://127.0.0.1:3000
+📤 Press Ctrl+C to stop the server
+...
+🔄 File changed: app.py
+🔄 Reloading application...
+🛑 Stopping current process...
+🚀 Starting application: app.py
+📤 Server running at http://127.0.0.1:3000
+...</pre>
+                                    </div>
+                                    
+                    <p class="mb-4">Behind the scenes, the development server uses Python's <code>watchdog</code> package to monitor file changes and automatically restarts your application when any Python file is modified.</p>
+
+                    <!-- Dev.py Source Code -->
+                    <div class="mt-8 mb-4">
+                        <h3 class="text-xl font-semibold mb-3">Full Source Code</h3>
+                        <p class="mb-4">If you want to use the development server in your own project without installing the full Expressify package, you can copy the following code into a file named <code>dev.py</code>:</p>
+                                    </div>
+                                    
+                    <div class="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg mb-6 overflow-x-auto">
+                        <pre class="text-sm text-gray-800 dark:text-gray-200">#!/usr/bin/env python3
+"""
+Expressify Development Server with Hot Reloading
+
+This script provides a development server with automatic reloading
+when source files change. It monitors the current directory and restarts
+the application when any Python file changes.
+
+Usage:
+    python dev.py app.py
+    python dev.py examples/01-hello-world/app.py
+"""
+
+import argparse
+import importlib.util
+import os
+import signal
+import subprocess
+import sys
+import time
+from pathlib import Path
+from types import ModuleType
+from typing import Any, List, Optional
+
+try:
+    from watchdog.events import FileSystemEventHandler
+    from watchdog.observers import Observer
+except ImportError:
+    print("watchdog package is required for dev server. Install it with:")
+    print("pip install watchdog")
+    sys.exit(1)
+
+class AppReloader(FileSystemEventHandler):
+    """Watches for file changes and reloads the application."""
+    
+    def __init__(self, app_path: str, watch_dirs: List[str] = None):
+        self.app_path = app_path
+        self.watch_dirs = watch_dirs or ['.']
+        self.process: Optional[subprocess.Popen] = None
+        self.observer = Observer()
+        self.module_name = os.path.basename(app_path).replace('.py', '')
+        self.module: Optional[ModuleType] = None
+        self.last_reload = 0
+        self.reloading = False
+        
+        # Handle SIGINT (Ctrl+C) gracefully
+        signal.signal(signal.SIGINT, self.handle_sigint)
+            
+    def start(self):
+        """Start the development server with hot reloading."""
+        print(f"🔥 Expressify development server starting...")
+        print(f"📁 Application: {self.app_path}")
+        
+        # Start watching for file changes
+        for watch_dir in self.watch_dirs:
+            self.observer.schedule(self, watch_dir, recursive=True)
+        self.observer.start()
+        
+        try:
+            self.load_app()
+            while True:
+                time.sleep(1)
+        except KeyboardInterrupt:
+            self.stop()
+    
+    def stop(self):
+        """Stop the reloader and clean up resources."""
+        print("\n🛑 Shutting down development server...")
+        if self.process:
+            self.kill_process()
+        self.observer.stop()
+        self.observer.join()
+        print("👋 Server stopped")
+        
+    def handle_sigint(self, sig, frame):
+        """Handle SIGINT (Ctrl+C) signal."""
+        self.stop()
+        sys.exit(0)
+        
+    def on_modified(self, event):
+        """Called when a file is modified."""
+        if event.is_directory:
+            return
+            
+        # Only reload on Python file changes
+        if not event.src_path.endswith('.py'):
+            return
+            
+        # Avoid multiple simultaneous reloads
+        current_time = time.time()
+        if current_time - self.last_reload < 1 or self.reloading:
+            return
+            
+        self.last_reload = current_time
+        self.reloading = True
+        print(f"\n🔄 File changed: {os.path.basename(event.src_path)}")
+        self.reload_app()
+        self.reloading = False
+    
+    def load_app(self):
+        """Load or reload the application."""
+        if self.process:
+            self.kill_process()
+        
+        print(f"🚀 Starting application: {self.app_path}")
+        
+        # Start the application as a subprocess
+        try:
+            self.process = subprocess.Popen(
+                [sys.executable, self.app_path],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                bufsize=1  # Line buffered
+            )
+            
+            # Start threads to read stdout and stderr
+            self.start_output_reader(self.process.stdout, "📤")
+            self.start_output_reader(self.process.stderr, "⚠️")
+            
+        except Exception as e:
+            print(f"❌ Failed to start application: {e}")
+            self.process = None
+    
+    def reload_app(self):
+        """Reload the application after changes."""
+        print("🔄 Reloading application...")
+        self.load_app()
+    
+    def kill_process(self):
+        """Kill the current process if it exists."""
+        if self.process:
+            print("🛑 Stopping current process...")
+            try:
+                # Try to terminate gracefully first
+                self.process.terminate()
+                # Give it some time to terminate
+                for _ in range(5):
+                    if self.process.poll() is not None:
+                        break
+                    time.sleep(0.1)
+                    
+                # If still running, force kill
+                if self.process.poll() is None:
+                    self.process.kill()
+                    self.process.wait()
+            except Exception as e:
+                print(f"❌ Error stopping process: {e}")
+            
+            self.process = None
+    
+    def start_output_reader(self, pipe, prefix):
+        """Start a thread to read output from the subprocess."""
+        def reader():
+            for line in iter(pipe.readline, ''):
+                if line.strip():
+                    print(f"{prefix} {line.rstrip()}")
+            
+        import threading
+        thread = threading.Thread(target=reader)
+        thread.daemon = True
+        thread.start()
+
+def find_watch_dirs(app_path: str) -> List[str]:
+    """Find directories to watch for changes."""
+    app_dir = os.path.dirname(os.path.abspath(app_path))
+    
+    # Always watch the directory of the app
+    watch_dirs = [app_dir]
+    
+    # If it's an examples subdirectory, also watch the core expressify package
+    if app_dir.startswith(os.path.join(os.getcwd(), 'examples')):
+        expressify_dir = os.path.join(os.getcwd(), 'expressify')
+        if os.path.exists(expressify_dir):
+            watch_dirs.append(expressify_dir)
+    
+    return watch_dirs
+
+def main():
+    """Main entry point for the development server."""
+    parser = argparse.ArgumentParser(description="Expressify Development Server with Hot Reloading")
+    parser.add_argument('app_path', help="Path to the main application file")
+    args = parser.parse_args()
+    
+    # Ensure the app file exists
+    if not os.path.exists(args.app_path):
+        print(f"❌ Error: App file not found: {args.app_path}")
+        sys.exit(1)
+    
+    # Find directories to watch
+    watch_dirs = find_watch_dirs(args.app_path)
+    
+    # Start the reloader
+    reloader = AppReloader(args.app_path, watch_dirs)
+    reloader.start()
+
+if __name__ == "__main__":
+    main()</pre>
+                    </div>
+                    
+                    <p class="mb-4">To use this script:</p>
+                    <ol class="list-decimal pl-6 mb-6 space-y-2">
+                        <li>Copy the code above into a file named <code>dev.py</code> in your project</li>
+                        <li>Install the watchdog package: <code>pip install watchdog</code></li>
+                        <li>Make the script executable: <code>chmod +x dev.py</code> (Linux/macOS only)</li>
+                        <li>Run your application with: <code>python dev.py app.py</code></li>
+                    </ol>
+                </section>
+                
+                <!-- Middleware Section -->
+                <section id="middleware" class="mb-16 pt-16 -mt-16">
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-green-300/10 to-teal-300/10 rounded-full filter blur-3xl transform translate-x-1/3 -translate-y-1/3"></div>
+                        <div class="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-br from-blue-300/10 to-indigo-300/10 rounded-full filter blur-3xl transform -translate-x-1/3 translate-y-1/2"></div>
+                        
+                        <div class="relative">
+                            <h2 class="text-2xl font-bold mb-8 pb-2 border-b border-gray-200 dark:border-gray-700 flex items-center">
+                                <div class="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mr-3">
+                                    <i class="fas fa-filter text-green-600 dark:text-green-400"></i>
+                                </div>
+                                Middleware
+                            </h2>
+                            
+                            <p class="mb-6 text-gray-600 dark:text-gray-300">
+                                Middleware functions are functions that have access to the request object, response object, and the next middleware function in the application's request-response cycle. Middleware can:
+                            </p>
+                            
+                            <ul class="list-disc pl-6 mb-8 text-gray-600 dark:text-gray-300 space-y-2">
+                                <li>Execute code during the request-response cycle</li>
+                                <li>Modify the request and response objects</li>
+                                <li>End the request-response cycle</li>
+                                <li>Call the next middleware in the stack</li>
+                            </ul>
+                            
+                            <div data-tab-group="middleware-types" class="mb-8">
+                                <div class="flex border-b border-gray-200 dark:border-gray-700 mb-4">
+                                    <div class="code-tab px-4 py-2 font-medium" onclick="switchTab('middleware-types', 0)">
+                                        Global Middleware
+                                    </div>
+                                    <div class="code-tab px-4 py-2 font-medium" onclick="switchTab('middleware-types', 1)">
+                                        Route-Specific Middleware
+                                    </div>
+                                </div>
+                                
+                                <div class="code-content bg-white dark:bg-gray-700 p-6 rounded-lg">
+                                    <p class="mb-4 text-gray-600 dark:text-gray-300">
+                                        Global middleware is applied to all routes in your application. This is useful for functionality like logging, authentication, or setting common headers.
+                                    </p>
+                                    
+                                    <div class="mb-6">
+                                        <h3 class="text-lg font-semibold mb-3 text-green-700 dark:text-green-400">Using Decorator Syntax</h3>
+                                        <div class="code-block">
+                                            <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">from expressify import Expressify
+
+app = Expressify()
+
+@app.use
+def logger_middleware(req, res, next):
+    """Log request information"""
+    print(f"{req.method} {req.path}")
+    
+    # Call the next middleware/route handler
+    result = next()
+    
+    # Log the response status code
+    print(f"Response: {res.status_code}")
+    
+    # Return the result
+    return result
+
+@app.get('/')
+def home(req, res):
+    return res.send('Home page')
+
+if __name__ == '__main__':
+    app.listen(port=3000)</code></pre>
+                                        <button class="copy-button" onclick="copyCode(this)">
+                                            <i class="fas fa-copy mr-1"></i> Copy
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <h3 class="text-lg font-semibold mb-3 text-green-700 dark:text-green-400">Using Express-like Syntax</h3>
+                                    <div class="code-block">
+                                        <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">from expressify import expressify
+
+app = expressify()
+
+def logger_middleware(req, res, next):
+    print(f"{req.method} {req.path}")
+    next()
+
+# Apply middleware globally
+app.use(logger_middleware)
+
+def home(req, res):
+    res.send('Home page')
+
+app.get('/', home)
+
+if __name__ == '__main__':
+    app.listen(port=3000)</code></pre>
+                                        <button class="copy-button" onclick="copyCode(this)">
+                                            <i class="fas fa-copy mr-1"></i> Copy
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Middleware chain -->
+                            <div class="mt-10">
+                                <h3 class="text-xl font-bold mb-4 flex items-center">
+                                    <div class="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center mr-2">
+                                        <i class="fas fa-link text-indigo-600 dark:text-indigo-400 text-sm"></i>
+                                    </div>
+                                    Middleware Chain
+                                </h3>
+                                
+                                <p class="mb-4 text-gray-600 dark:text-gray-300">
+                                    Multiple middleware functions can be chained together. Each middleware has access to the request and response objects, and can either pass control to the next middleware using <code class="bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded">next()</code> or terminate the request-response cycle.
+                                </p>
+                                
+                                <div class="code-block">
+                                        <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">from expressify import Expressify
+import time
+import json
+
+app = Expressify()
+
+# Define multiple middleware functions
+@app.use
+def logger_middleware(req, res, next):
+    """Log request information and timing data"""
+    start_time = time.time()
+    print(f"Request: {req.method} {req.path}")
+    result = next()
+    duration = (time.time() - start_time) * 1000  # Convert to ms
+    print(f"Response: {res.status_code} - {duration:.2f}ms")
+    return result
+
+@app.use
+def cors_middleware(req, res, next):
+    """Add CORS headers to enable cross-origin requests"""
+    res.set_header('Access-Control-Allow-Origin', '*')
+    res.set_header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+    res.set_header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+    
+    if req.method == 'OPTIONS':
+        return res.status(204).send()
+    return next()
+
+@app.use
+def json_parser_middleware(req, res, next):
+    """Parse JSON request bodies"""
+    if 'application/json' in req.get_header('content-type', ''):
+        try:
+            if req.body:
+                req.json = json.loads(req.body)
+        except json.JSONDecodeError:
+            return res.status(400).json({
+                'error': 'Invalid JSON',
+                'message': 'Failed to parse request body as JSON'
+            })
+    return next()
+
+@app.get('/')
+def home(req, res):
+    return res.send('Hello from Expressify!')
+
+@app.post('/api/data')
+def create_data(req, res):
+    # The JSON parser middleware will have already parsed the JSON body
+    if hasattr(req, 'json'):
+        return res.status(201).json({
+            'message': 'Data received successfully',
+            'data': req.json
+        })
+    else:
+        return res.status(400).json({
+            'error': 'No data provided',
+            'message': 'Request body should contain JSON data'
+        })
+
+if __name__ == '__main__':
+    app.listen(port=3000)</code></pre>
+                                    <button class="copy-button" onclick="copyCode(this)">
+                                        <i class="fas fa-copy mr-1"></i> Copy
+                                    </button>
+                                </div>
+                                
+                                <div class="mt-6 bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-lg flex">
+                                    <div class="flex-shrink-0 mr-3 mt-1">
+                                        <i class="fas fa-lightbulb text-indigo-500 text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-indigo-700 dark:text-indigo-300 mb-1">Key Concept</h4>
+                                        <p class="text-gray-600 dark:text-gray-400">
+                                            Middleware execution follows the order in which they are defined. Global middleware defined with <code class="bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded">app.use()</code> runs first, followed by route-specific middleware, and finally the route handler.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Common Use Cases -->
+                            <div class="mt-10">
+                                <h3 class="text-xl font-bold mb-4">Common Middleware Use Cases</h3>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div class="bg-white dark:bg-gray-700 p-5 rounded-lg shadow-sm transform transition-all duration-300 hover:-translate-y-1">
+                                        <h4 class="font-bold mb-3 text-primary-700 dark:text-primary-400 flex items-center">
+                                            <i class="fas fa-shield-alt mr-2"></i>
+                                            Authentication
+                                        </h4>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400">
+                                            Verify user identity and protect routes that require authentication. Authentication middleware can check for tokens, sessions, or other credentials.
+                                        </p>
+                                    </div>
+                                    
+                                    <div class="bg-white dark:bg-gray-700 p-5 rounded-lg shadow-sm transform transition-all duration-300 hover:-translate-y-1">
+                                        <h4 class="font-bold mb-3 text-green-700 dark:text-green-400 flex items-center">
+                                            <i class="fas fa-file-alt mr-2"></i>
+                                            Logging
+                                        </h4>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400">
+                                            Record request information, response times, and other metrics. Logging middleware can be valuable for debugging and monitoring application performance.
+                                        </p>
+                                    </div>
+                                    
+                                    <div class="bg-white dark:bg-gray-700 p-5 rounded-lg shadow-sm transform transition-all duration-300 hover:-translate-y-1">
+                                        <h4 class="font-bold mb-3 text-purple-700 dark:text-purple-400 flex items-center">
+                                            <i class="fas fa-globe mr-2"></i>
+                                            CORS
+                                        </h4>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400">
+                                            Handle Cross-Origin Resource Sharing to control which domains can access your API. CORS middleware sets appropriate headers for cross-domain requests.
+                                        </p>
+                                    </div>
+                                    
+                                    <div class="bg-white dark:bg-gray-700 p-5 rounded-lg shadow-sm transform transition-all duration-300 hover:-translate-y-1">
+                                        <h4 class="font-bold mb-3 text-blue-700 dark:text-blue-400 flex items-center">
+                                            <i class="fas fa-compress-arrows-alt mr-2"></i>
+                                            Compression
+                                        </h4>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400">
+                                            Compress HTTP responses to reduce bandwidth and improve loading times. Compression middleware typically uses gzip or other algorithms to reduce payload size.
+                                        </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Template Rendering -->
+                <section id="templates" class="mb-12">
+                    <h2 class="text-2xl font-bold mb-4">Template Rendering</h2>
+                    <p class="mb-4">Expressify includes built-in support for Jinja2 templates:</p>
+                    <div class="bg-gray-800 rounded-lg p-4 mb-6">
+                        <pre><code class="language-python">import os
+from expressify import expressify
+
+app = expressify()
+
+# Set up the template engine
+app.set('view engine', 'jinja2')
+app.set('views', os.path.join(os.path.dirname(__file__), 'views'))
+
+@app.get('/')
+def home(req, res):
+    # Render the index.html template with data
+    res.render('index.html', {
+        'title': 'Expressify Example',
+        'message': 'Welcome to Expressify!',
+        'items': ['Item 1', 'Item 2', 'Item 3']
+    })</code></pre>
+                    </div>
+                    <p class="mb-4">Create a template file <code class="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded">views/index.html</code>:</p>
+                    <div class="bg-gray-800 rounded-lg p-4 mb-6">
+                        <pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;{{ title }}&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;{{ message }}&lt;/h1&gt;
+    &lt;ul&gt;
+        {% for item in items %}
+            &lt;li&gt;{{ item }}&lt;/li&gt;
+        {% endfor %}
+    &lt;/ul&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+                    </div>
+                </section>
+                
+                <!-- Static Files -->
+                <section id="static-files" class="mb-12">
+                    <h2 class="text-2xl font-bold mb-4">Serving Static Files</h2>
+                    <p class="mb-4">Expressify makes it easy to serve static files like CSS, JavaScript, and images:</p>
+                    <div class="bg-gray-800 rounded-lg p-4 mb-6">
+                        <pre><code class="language-python">from expressify import expressify
+from expressify.lib.middleware import Middleware
+import os
+
+app = expressify()
+
+# Serve static files from the 'public' directory
+app.use('/static', Middleware.static(os.path.join(os.path.dirname(__file__), 'public')))
+
+# Now you can access files at /static/css/style.css, /static/js/script.js, etc.</code></pre>
+                    </div>
+                </section>
+                
+                <!-- Next Steps -->
+                <section id="next-steps" class="mb-16">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 bg-primary-100 dark:bg-primary-900/30 rounded-xl flex items-center justify-center mr-4">
+                            <i class="fas fa-chevron-right text-2xl text-primary-600 dark:text-primary-400"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold">Next Steps</h2>
+                    </div>
+                    
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-8">
+                        <p class="mb-6">Now that you've got the basics, explore the full capabilities of Expressify:</p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <a href="examples.html" class="bg-white dark:bg-gray-700 p-5 rounded-xl shadow-md hover:shadow-lg transition flex flex-col items-center text-center group">
+                                <div class="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition">
+                                    <i class="fas fa-code text-2xl text-blue-500"></i>
+                                </div>
+                                <h3 class="font-bold mb-2">Example Applications</h3>
+                                <p class="text-gray-600 dark:text-gray-300 text-sm">Learn by example with ready-to-use code samples</p>
+                            </a>
+                            
+                            <a href="api-reference.html" class="bg-white dark:bg-gray-700 p-5 rounded-xl shadow-md hover:shadow-lg transition flex flex-col items-center text-center group">
+                                <div class="w-16 h-16 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition">
+                                    <i class="fas fa-book text-2xl text-purple-500"></i>
+                                </div>
+                                <h3 class="font-bold mb-2">API Reference</h3>
+                                <p class="text-gray-600 dark:text-gray-300 text-sm">Detailed documentation of all Expressify features</p>
+                            </a>
+                            
+                            <a href="https://github.com/itsdhruvrawat/expressify" class="bg-white dark:bg-gray-700 p-5 rounded-xl shadow-md hover:shadow-lg transition flex flex-col items-center text-center group">
+                                <div class="w-16 h-16 bg-gray-100 dark:bg-gray-600 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition">
+                                    <i class="fab fa-github text-2xl text-gray-700 dark:text-white"></i>
+                                </div>
+                                <h3 class="font-bold mb-2">GitHub Repository</h3>
+                                <p class="text-gray-600 dark:text-gray-300 text-sm">Contribute to the project or report issues</p>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-br from-blue-500 to-primary-600 rounded-xl p-8 text-white flex items-center">
+                        <div class="mr-8 flex-shrink-0 hidden md:block">
+                            <div class="w-32 h-32 bg-white/10 rounded-full flex items-center justify-center floating">
+                                <i class="fas fa-graduation-cap text-5xl"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold mb-2">Ready to build something amazing?</h3>
+                            <p class="mb-4 text-white/90">You've learned the basics of Expressify. Now it's time to build your own application!</p>
+                            <a href="examples.html" class="inline-flex items-center bg-white text-primary-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors">
+                                Explore Examples
+                                <i class="fas fa-arrow-right ml-2"></i>
+                            </a>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Expressify</h3>
+                    <p class="text-gray-400">A lightweight Express.js-inspired web framework for Python</p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-bold mb-4">Documentation</h4>
+                    <ul class="space-y-2">
+                        <li><a href="getting-started.html" class="text-gray-400 hover:text-white transition-colors">Getting Started</a></li>
+                        <li><a href="examples.html" class="text-gray-400 hover:text-white transition-colors">Examples</a></li>
+                        <li><a href="api-reference.html" class="text-gray-400 hover:text-white transition-colors">API Reference</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-bold mb-4">Resources</h4>
+                    <ul class="space-y-2">
+                        <li><a href="https://github.com/itsdhruvrawat/expressify" class="text-gray-400 hover:text-white transition-colors">GitHub</a></li>
+                        <li><a href="https://pypi.org/user/dhruvrawat/" class="text-gray-400 hover:text-white transition-colors">PyPI</a></li>
+                        <li><a href="about.html" class="text-gray-400 hover:text-white transition-colors">About</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-bold mb-4">Author</h4>
+                    <p class="text-gray-400 mb-2">Dhruv Rawat</p>
+                    <div class="flex space-x-4">
+                        <a href="https://github.com/itsdhruvrawat" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-github text-xl"></i>
+                        </a>
+                        <a href="mailto:dhruvrwt12@gmail.com" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fas fa-envelope text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2024 Expressify. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript for mobile menu toggle -->
+    <script>
+        // Mobile menu toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const menu = document.getElementById('menu');
+            
+            if (mobileMenuButton) {
+                mobileMenuButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    console.log('Mobile menu button clicked');
+            menu.classList.toggle('hidden');
+                    
+                    // Animate the menu items
+                    const menuItems = menu.querySelectorAll('li');
+                    if (!menu.classList.contains('hidden')) {
+                        menuItems.forEach((item, index) => {
+                            item.style.opacity = '0';
+                            item.style.transform = 'translateY(-10px)';
+                            item.style.transition = `opacity 0.3s ease, transform 0.3s ease`;
+                            
+                            setTimeout(() => {
+                                item.style.opacity = '1';
+                                item.style.transform = 'translateY(0)';
+                            }, 100 + (index * 50));
+                        });
+                    }
+                });
+            } else {
+                console.error('Mobile menu button not found');
+            }
+        });
+
+        // Theme toggle functionality
+        function setTheme(isDark) {
+            if (isDark) {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        // Check for saved theme preference or prefer-color-scheme
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const savedTheme = localStorage.getItem('theme');
+        
+        // Set dark theme by default
+        if (savedTheme === 'light') {
+            setTheme(false);
+        } else {
+            setTheme(true);
+        }
+
+        // Theme toggle buttons - both mobile and desktop use the same function
+        document.getElementById('theme-toggle').addEventListener('click', () => {
+            const isDark = document.documentElement.classList.contains('dark');
+            setTheme(!isDark);
+        });
+
+        document.getElementById('theme-toggle-mobile').addEventListener('click', () => {
+            const isDark = document.documentElement.classList.contains('dark');
+            setTheme(!isDark);
+        });
+    </script>
+
+    <!-- Add Prism.js for better code highlighting -->
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+    <script>
+        // Add smooth scrolling to anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Add animation on scroll
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-fade-in');
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+        
+        document.querySelectorAll('section').forEach(section => {
+            section.style.opacity = '0';
+            section.style.transform = 'translateY(20px)';
+            section.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
+            observer.observe(section);
+        });
+        
+        // Tab switching functionality
+        function switchTab(tabGroup, tabIndex) {
+            // Get all tabs and content in this group
+            const tabs = document.querySelectorAll(`[data-tab-group="${tabGroup}"] .code-tab`);
+            const contents = document.querySelectorAll(`[data-tab-group="${tabGroup}"] .code-content`);
+            
+            // Hide all content and deactivate all tabs
+            tabs.forEach(tab => tab.classList.remove('active'));
+            contents.forEach(content => content.classList.add('hidden'));
+            
+            // Activate selected tab and show content
+            tabs[tabIndex].classList.add('active');
+            contents[tabIndex].classList.remove('hidden');
+        }
+        
+        // Copy code functionality
+        function copyCode(button) {
+            const codeBlock = button.previousElementSibling;
+            const code = codeBlock.textContent;
+            
+            navigator.clipboard.writeText(code).then(() => {
+                // Visual feedback
+                button.innerHTML = '<i class="fas fa-check mr-1"></i> Copied!';
+                
+                setTimeout(() => {
+                    button.innerHTML = '<i class="fas fa-copy mr-1"></i> Copy';
+                }, 2000);
+            });
+        }
+        
+        // Initialize all tab groups when the DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('[data-tab-group]').forEach(group => {
+                const groupName = group.getAttribute('data-tab-group');
+                switchTab(groupName, 0); // Default to first tab
+            });
+        });
+        
+        // Initialize now as well since DOMContentLoaded might have already fired
+        document.querySelectorAll('[data-tab-group]').forEach(group => {
+            const groupName = group.getAttribute('data-tab-group');
+            switchTab(groupName, 0); // Default to first tab
+        });
+    </script>
+</body>
+</html> 

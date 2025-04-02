@@ -1,0 +1,294 @@
+/* styles.css */
+:root {
+    --primary-color: #0066cc;
+    --primary-hover: #0055aa;
+    --secondary-color: #f0f0f0;
+    --secondary-hover: #e0e0e0;
+    --text-color: #333;
+    --background-color: #f5f5f5;
+    --card-background: white;
+    --card-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    --code-background: #f0f0f0;
+    --footer-color: var(--primary-color);
+    --footer-text: white;
+    --transition-speed: 0.3s;
+}
+
+/* Dark mode styles */
+[data-theme="dark"],
+html.dark-mode {
+    --primary-color: #3a86ff !important;
+    --primary-hover: #4a94ff !important;
+    --secondary-color: #444 !important;
+    --secondary-hover: #555 !important;
+    --text-color: #e0e0e0 !important;
+    --background-color: #222 !important;
+    --card-background: #333 !important;
+    --card-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+    --code-background: #444 !important;
+    --footer-color: #1a1a1a !important;
+    --footer-text: #e0e0e0 !important;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* Direct color application for dark mode to prevent FOUC */
+[data-theme="dark"],
+html.dark-mode {
+    background-color: #222;
+    color: #e0e0e0;
+}
+
+[data-theme="dark"] body,
+html.dark-mode body {
+    background-color: #222;
+    color: #e0e0e0;
+}
+
+/* Transitions */
+html, body, .card, pre, code, h1, h2, h3, .result, footer {
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s, box-shadow 0.3s;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: var(--text-color);
+    background-color: var(--background-color);
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+header {
+    background: linear-gradient(135deg, var(--primary-color), #0088ff);
+    color: white;
+    padding: 30px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+header h1 {
+    margin-bottom: 15px;
+    font-size: 2.5rem;
+}
+
+header p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+.card {
+    background-color: var(--card-background);
+    padding: 25px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: var(--card-shadow);
+    transition: transform 0.2s, background-color var(--transition-speed);
+}
+
+.card:hover {
+    transform: translateY(-3px);
+}
+
+h1, h2, h3 {
+    margin-bottom: 15px;
+}
+
+h2 {
+    color: var(--primary-color);
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 8px;
+    margin-bottom: 20px;
+}
+
+h3 {
+    margin-top: 20px;
+    color: #444;
+}
+
+[data-theme="dark"] h3,
+html.dark-mode h3 {
+    color: #ccc !important;
+}
+
+ul {
+    margin-left: 25px;
+    margin-bottom: 20px;
+}
+
+li {
+    margin-bottom: 8px;
+}
+
+code {
+    background-color: var(--code-background);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.9em;
+}
+
+pre {
+    background-color: var(--code-background);
+    padding: 15px;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 15px 0;
+    border-left: 4px solid var(--primary-color);
+}
+
+pre code {
+    background-color: transparent;
+    padding: 0;
+}
+
+.btn {
+    display: inline-block;
+    padding: 10px 18px;
+    margin-right: 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.primary {
+    background-color: var(--primary-color);
+    color: white;
+    box-shadow: 0 2px 4px rgba(0, 102, 204, 0.3);
+}
+
+.primary:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 102, 204, 0.4);
+}
+
+.secondary {
+    background-color: var(--secondary-color);
+    color: var(--text-color);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.secondary:hover {
+    background-color: var(--secondary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.buttons {
+    margin: 20px 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.image-container {
+    text-align: center;
+    margin: 25px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+    flex-wrap: wrap;
+}
+
+.logo {
+    max-width: 200px;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s;
+}
+
+.logo:hover {
+    transform: scale(1.05);
+}
+
+.icon {
+    display: inline-block;
+    transition: transform 0.3s;
+}
+
+.icon:hover {
+    transform: rotate(15deg);
+}
+
+.result {
+    margin-top: 15px;
+    padding: 15px;
+    background-color: var(--code-background);
+    border-radius: 6px;
+    min-height: 50px;
+    border-left: 4px solid var(--primary-color);
+}
+
+footer {
+    background-color: var(--footer-color);
+    color: var(--footer-text);
+    padding: 25px;
+    text-align: center;
+    border-radius: 8px;
+    margin-top: 30px;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    header {
+        padding: 20px;
+    }
+    
+    header h1 {
+        font-size: 2rem;
+    }
+    
+    .card {
+        padding: 15px;
+    }
+    
+    .buttons {
+        flex-direction: column;
+    }
+    
+    .btn {
+        width: 100%;
+        margin-bottom: 10px;
+        margin-right: 0;
+    }
+}
+
+/* Enhanced animation effects */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.card {
+    animation: fadeIn 0.5s ease forwards;
+}
+
+.card:nth-child(1) { animation-delay: 0.1s; }
+.card:nth-child(2) { animation-delay: 0.2s; }
+.card:nth-child(3) { animation-delay: 0.3s; }
+.card:nth-child(4) { animation-delay: 0.4s; }
+.card:nth-child(5) { animation-delay: 0.5s; }
+
+.clicked {
+    transform: scale(0.95) !important;
+} 

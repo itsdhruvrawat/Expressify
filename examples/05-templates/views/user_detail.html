@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+    <h1>{{ user.name }}</h1>
+    
+    <div class="card">
+        <p><strong>ID:</strong> {{ user.id }}</p>
+        <p><strong>Email:</strong> {{ user.email }}</p>
+        <p><strong>Role:</strong> {{ user.role }}</p>
+    </div>
+    
+    <p><a href="/users" class="btn">&larr; Back to Users</a></p>
+{% endblock %}

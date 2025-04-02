@@ -1,0 +1,56 @@
+{% extends "layout.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+    <h1>{{ title }}</h1>
+    
+    <!-- Category Filter -->
+    <div class="card">
+        <h3>Filter by Category</h3>
+        <p>
+            <a href="/products" class="btn {% if not category %}btn-primary{% endif %}">All</a>
+            {% for cat in categories %}
+                <a href="/products?category={{ cat }}" class="btn {% if category == cat %}btn-primary{% endif %}">{{ cat }}</a>
+            {% endfor %}
+        </p>
+    </div>
+    
+    <!-- Product List -->
+    {% if products %}
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Price</th>
+                    <th>Category</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                    <tr>
+                        <td>{{ product.id }}</td>
+                        <td>{{ product.name }}</td>
+                        <td>${{ product.price }}</td>
+                        <td>{{ product.category }}</td>
+                        <td>
+                            {% if product.in_stock %}
+                                <span style="color: green;">In Stock</span>
+                            {% else %}
+                                <span style="color: red;">Out of Stock</span>
+                            {% endif %}
+                        </td>
+                        <td><a href="/products/{{ product.id }}">View</a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="card">
+            <p>No products found{% if category %} in the "{{ category }}" category{% endif %}.</p>
+        </div>
+    {% endif %}
+{% endblock %}

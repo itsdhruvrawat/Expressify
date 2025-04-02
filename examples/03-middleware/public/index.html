@@ -1,0 +1,53 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Middleware Demo</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; }
+        h1 { color: #0066cc; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .route { background: #f4f4f4; padding: 10px; margin-bottom: 10px; border-radius: 5px; }
+        .method { display: inline-block; padding: 3px 6px; border-radius: 3px; color: white; font-size: 12px; margin-right: 10px; }
+        .get { background-color: #61affe; }
+        .post { background-color: #49cc90; }
+        .protected { border-left: 4px solid #ff6b6b; padding-left: 10px; }
+        code { background: #eee; padding: 2px 4px; border-radius: 3px; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Middleware Demo</h1>
+        <p>This example demonstrates middleware functionality in a simple HTTP server.</p>
+        
+        <h2>Available Routes</h2>
+        <div class="route">
+            <span class="method get">GET</span> <a href="/">/</a> - Home page
+        </div>
+        <div class="route">
+            <span class="method get">GET</span> <a href="/about">/about</a> - About page
+        </div>
+        <div class="route">
+            <span class="method get">GET</span> <a href="/api">/api</a> - API endpoint
+        </div>
+        <div class="route protected">
+            <span class="method get">GET</span> <a href="/protected">/protected</a> - Protected route (requires API key)
+            <div>Header: <code>X-API-Key: abc123</code></div>
+        </div>
+        <div class="route">
+            <span class="method get">GET</span> <a href="/public/test.html">/public/test.html</a> - Static file
+        </div>
+        <div class="route">
+            <span class="method post">POST</span> <a href="/echo">/echo</a> - Echo API (use curl or Postman)
+        </div>
+        
+        <h2>Middleware Functionality</h2>
+        <ul>
+            <li><strong>Logger:</strong> Logs all requests with timing information</li>
+            <li><strong>Authentication:</strong> Checks for API key on protected routes</li>
+            <li><strong>Static Files:</strong> Serves files from the public directory</li>
+            <li><strong>JSON Parser:</strong> Parses JSON request bodies</li>
+        </ul>
+    </div>
+</body>
+</html>

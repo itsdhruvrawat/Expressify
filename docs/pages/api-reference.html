@@ -1,0 +1,3085 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Reference - Expressify</title>
+    <!-- Immediately apply theme preference to prevent flash -->
+    <script>
+        // Check for saved theme preference or prefer-color-scheme
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const savedTheme = localStorage.getItem('theme');
+        
+        // Apply theme immediately before page renders
+        if (savedTheme === 'dark' || (savedTheme === null && prefersDark)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+    <script src="https://cdn.tailwindcss.com/3.4.0"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        },
+                    }
+                },
+                plugins: [
+                    function({ addComponents, theme }) {
+                        addComponents({
+                            '.method-badge': {
+                                display: 'inline-block',
+                                paddingLeft: '0.5rem',
+                                paddingRight: '0.5rem',
+                                paddingTop: '0.25rem',
+                                paddingBottom: '0.25rem',
+                                fontSize: '0.75rem',
+                                fontFamily: 'monospace',
+                                borderRadius: '0.25rem',
+                                marginRight: '0.5rem'
+                            },
+                            '.get-badge': {
+                                backgroundColor: theme('colors.green.100'),
+                                color: theme('colors.green.800'),
+                                '.dark &': {
+                                    backgroundColor: 'rgba(16, 185, 129, 0.3)',
+                                    color: theme('colors.green.400')
+                                }
+                            },
+                            '.post-badge': {
+                                backgroundColor: theme('colors.blue.100'),
+                                color: theme('colors.blue.800'),
+                                '.dark &': {
+                                    backgroundColor: 'rgba(59, 130, 246, 0.3)',
+                                    color: theme('colors.blue.400')
+                                }
+                            },
+                            '.put-badge': {
+                                backgroundColor: theme('colors.yellow.100'),
+                                color: theme('colors.yellow.800'),
+                                '.dark &': {
+                                    backgroundColor: 'rgba(251, 191, 36, 0.3)',
+                                    color: theme('colors.yellow.400')
+                                }
+                            },
+                            '.delete-badge': {
+                                backgroundColor: theme('colors.red.100'),
+                                color: theme('colors.red.800'),
+                                '.dark &': {
+                                    backgroundColor: 'rgba(239, 68, 68, 0.3)',
+                                    color: theme('colors.red.400')
+                                }
+                            },
+                            '.patch-badge': {
+                                backgroundColor: theme('colors.purple.100'),
+                                color: theme('colors.purple.800'),
+                                '.dark &': {
+                                    backgroundColor: 'rgba(139, 92, 246, 0.3)',
+                                    color: theme('colors.purple.400')
+                                }
+                            },
+                            '.api-card': {
+                                backgroundColor: theme('colors.white'),
+                                padding: '1.5rem',
+                                borderRadius: '0.75rem',
+                                boxShadow: theme('boxShadow.sm'),
+                                marginBottom: '1.5rem',
+                                transition: 'transform 0.2s, box-shadow 0.2s',
+                                '.dark &': {
+                                    backgroundColor: theme('colors.gray.800')
+                                }
+                            },
+                            '.api-card:hover': {
+                                boxShadow: theme('boxShadow.md'),
+                                transform: 'translateY(-2px)'
+                            },
+                            '.sidebar-link': {
+                                display: 'flex',
+                                alignItems: 'center',
+                                padding: '0.5rem',
+                                color: theme('colors.gray.700'),
+                                borderRadius: '0.5rem',
+                                transition: 'background-color 0.15s',
+                                '.dark &': {
+                                    color: theme('colors.gray.300')
+                                }
+                            },
+                            '.sidebar-link:hover': {
+                                backgroundColor: theme('colors.gray.100'),
+                                '.dark &': {
+                                    backgroundColor: theme('colors.gray.700')
+                                }
+                            },
+                            '.sidebar-link.active': {
+                                backgroundColor: theme('colors.primary.50'),
+                                color: theme('colors.primary.700'),
+                                '.dark &': {
+                                    backgroundColor: 'rgba(10, 37, 77, 0.3)',
+                                    color: theme('colors.primary.400')
+                                }
+                            }
+                        })
+                    }
+                ]
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Mobile menu animation script -->
+    <script>
+        function toggleMobileMenu() {
+            const menu = document.getElementById('menu');
+            menu.classList.toggle('hidden');
+            
+            // Animate menu items if showing
+            if (!menu.classList.contains('hidden')) {
+                const menuItems = menu.querySelectorAll('li');
+                menuItems.forEach((item, index) => {
+                    item.style.opacity = '0';
+                    item.style.transform = 'translateY(-10px)';
+                    item.style.transition = `opacity 0.3s ease, transform 0.3s ease`;
+                    
+                    setTimeout(() => {
+                        item.style.opacity = '1';
+                        item.style.transform = 'translateY(0)';
+                    }, 100 + (index * 50));
+                });
+            }
+            return false;
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .transition-colors {
+                transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+                transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+                transition-duration: 150ms;
+            }
+            .code-block {
+                position: relative;
+                margin-bottom: 1rem;
+                border-radius: 0.5rem;
+                overflow: hidden;
+            }
+            .code-block pre {
+                padding-right: 2.5rem; /* Make space for the copy button */
+                margin: 0;
+                border-radius: 0.5rem;
+            }
+            .copy-button {
+                position: absolute;
+                top: 0.5rem;
+                right: 0.5rem;
+                background: rgba(255, 255, 255, 0.1);
+                border: none;
+                border-radius: 0.25rem;
+                color: #cbd5e0;
+                padding: 0.25rem 0.5rem;
+                font-size: 0.875rem;
+                cursor: pointer;
+                transition: all 0.2s;
+                z-index: 10;
+            }
+            .copy-button:hover {
+                background: rgba(255, 255, 255, 0.2);
+                color: white;
+            }
+            .copy-button.copied {
+                background: #48bb78;
+                color: white;
+            }
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(-10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            .fade-in {
+                animation: fadeIn 0.3s ease-out forwards;
+            }
+            .searchbar {
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'%3E%3C/path%3E%3C/svg%3E");
+                background-repeat: no-repeat;
+                background-position: 0.75rem center;
+                background-size: 1rem;
+                padding-left: 2.5rem;
+            }
+            .collapsible-content {
+                max-height: 0;
+                overflow: hidden;
+                transition: max-height 0.3s ease-out;
+            }
+            .expanded .collapsible-content {
+                max-height: 1000px;
+            }
+            .collapse-icon {
+                transition: transform 0.3s ease;
+            }
+            .expanded .collapse-icon {
+                transform: rotate(180deg);
+            }
+            .toc-progress {
+                position: fixed;
+                top: 8rem;
+                right: 2rem;
+                width: 3px;
+                height: 60vh;
+                background-color: rgba(226, 232, 240, 0.5);
+                overflow: hidden;
+            }
+            .toc-progress-bar {
+                width: 100%;
+                height: 0%;
+                background-color: #0ea5e9;
+                transition: height 0.1s;
+            }
+            .gradient-border {
+                position: relative;
+                border-radius: 0.5rem;
+            }
+            .gradient-border::before {
+                content: '';
+                position: absolute;
+                inset: -2px;
+                z-index: -1;
+                border-radius: 0.6rem;
+                background: linear-gradient(135deg, #0ea5e9, #6366f1, #0284c7);
+                mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+                mask-composite: exclude;
+                -webkit-mask-composite: xor;
+            }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js" defer></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+    <!-- Header -->
+    <header class="bg-primary-700 text-white">
+        <div class="container mx-auto px-4 py-6">
+            <nav class="flex flex-wrap items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <a href="../index.html" class="flex items-center gap-2">
+                        <i class="fas fa-bolt text-2xl"></i>
+                        <span class="text-2xl font-bold">Expressify</span>
+                    </a>
+                </div>
+                <div class="md:hidden flex items-center gap-4">
+                    <button id="theme-toggle-mobile" class="p-2 rounded bg-primary-600 dark:bg-gray-700 text-white hover:bg-primary-700 dark:hover:bg-gray-600 transition-colors">
+                        <i class="fas fa-moon dark:hidden"></i>
+                        <i class="fas fa-sun hidden dark:inline"></i>
+                    </button>
+                    <button id="mobile-menu-button" class="p-2 rounded hover:bg-primary-600" onclick="toggleMobileMenu()">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+                <div id="menu" class="hidden md:flex w-full md:w-auto mt-4 md:mt-0 absolute md:relative left-0 right-0 top-16 md:top-auto bg-gray-900 md:bg-transparent z-50 px-4 py-2 md:p-0 shadow-lg md:shadow-none">
+                    <ul class="flex flex-col md:flex-row md:gap-6">
+                        <li><a href="../index.html" class="block py-2 px-4 font-medium hover:text-primary-300">Home</a></li>
+                        <li><a href="getting-started.html" class="block py-2 px-4 font-medium hover:text-primary-300">Getting Started</a></li>
+                        <li><a href="examples.html" class="block py-2 px-4 font-medium hover:text-primary-300">Examples</a></li>
+                        <li><a href="api-reference.html" class="block py-2 px-4 font-medium text-primary-300">API Reference</a></li>
+                        <li><a href="about.html" class="block py-2 px-4 font-medium hover:text-primary-300">About</a></li>
+                    </ul>
+                </div>
+                <div class="hidden md:flex items-center gap-3">
+                    <a href="https://discord.gg/expressify" class="inline-flex items-center gap-1 py-2 px-4 rounded bg-indigo-600 text-white hover:bg-indigo-700 font-medium transition-colors">
+                        <i class="fab fa-discord"></i> Join Discord
+                    </a>
+                    <a href="https://github.com/itsdhruvrawat/expressify" class="inline-flex items-center gap-1 py-2 px-4 rounded bg-white text-primary-700 dark:bg-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 font-medium transition-colors">
+                        <i class="fab fa-github"></i> GitHub
+                    </a>
+                    <button id="theme-toggle" class="p-2 rounded bg-primary-600 dark:bg-gray-700 text-white hover:bg-primary-700 dark:hover:bg-gray-600 transition-colors">
+                        <i class="fas fa-moon dark:hidden"></i>
+                        <i class="fas fa-sun hidden dark:inline"></i>
+                    </button>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Page Content -->
+    <div class="container mx-auto px-4 py-12">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <!-- Sidebar -->
+            <div class="lg:col-span-1">
+                <div class="sticky top-8">
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-6">
+                        <h3 class="text-lg font-bold mb-4 flex items-center">
+                            <span class="w-8 h-8 bg-primary-500 rounded-full flex items-center justify-center text-white mr-2">
+                                <i class="fas fa-book"></i>
+                            </span>
+                            API Reference
+                        </h3>
+                        <ul class="space-y-3">
+                            <li>
+                                <a href="#application" class="flex items-center p-2 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 hover:bg-primary-50 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                                    <i class="fas fa-server w-5 text-center mr-2"></i>
+                                    <span>Application</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#routing" class="flex items-center p-2 text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                                    <i class="fas fa-route w-5 text-center mr-2"></i>
+                                    <span>Routing</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#request" class="flex items-center p-2 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 hover:bg-primary-50 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                                    <i class="fas fa-arrow-right w-5 text-center mr-2"></i>
+                                    <span>Request</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#response" class="flex items-center p-2 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 hover:bg-primary-50 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                                    <i class="fas fa-arrow-left w-5 text-center mr-2"></i>
+                                    <span>Response</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#middleware" class="flex items-center p-2 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 hover:bg-primary-50 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                                    <i class="fas fa-layer-group w-5 text-center mr-2"></i>
+                                    <span>Middleware</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#templates" class="flex items-center p-2 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 hover:bg-primary-50 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                                    <i class="fas fa-file-code w-5 text-center mr-2"></i>
+                                    <span>Templates</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#static-files" class="flex items-center p-2 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 hover:bg-primary-50 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                                    <i class="fas fa-folder-open w-5 text-center mr-2"></i>
+                                    <span>Static Files</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#error-handling" class="flex items-center p-2 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 hover:bg-primary-50 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                                    <i class="fas fa-exclamation-triangle w-5 text-center mr-2"></i>
+                                    <span>Error Handling</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#utilities" class="flex items-center p-2 text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                                    <i class="fas fa-tools w-5 text-center mr-2"></i>
+                                    <span>Utilities</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="lg:col-span-3">
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 mb-8">
+                    <h1 class="text-3xl font-bold mb-4">API Reference</h1>
+                    <p class="text-gray-600 dark:text-gray-300 mb-6">
+                        Complete documentation for Expressify's API. Easily build web applications with our intuitive and powerful interface.
+                    </p>
+
+                    <div class="gradient-border bg-gray-50 dark:bg-gray-700 p-4 mb-6">
+                        <div class="flex items-center text-primary-700 dark:text-primary-300">
+                            <i class="fas fa-info-circle mr-2 text-lg"></i>
+                            <p>This documentation covers all the methods, properties, and features available in Expressify.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- API Sections -->
+                <div class="space-y-8">
+                    <!-- Application -->
+                    <section id="application" class="mb-12">
+                        <h2 class="text-2xl font-bold mb-6 pb-2 border-b border-gray-200 dark:border-gray-700 flex items-center">
+                            <div class="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center mr-3">
+                                <i class="fas fa-cogs text-primary-600 dark:text-primary-400"></i>
+                            </div>
+                            Application Methods
+                        </h2>
+                        
+                        <div class="space-y-8">
+                            <div class="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md transform transition-all hover:shadow-lg">
+                                <div class="flex items-center mb-4">
+                                    <div class="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mr-4">
+                                        <i class="fas fa-bolt text-green-600 dark:text-green-400"></i>
+                                    </div>
+                                    <h3 class="text-xl font-bold">expressify()</h3>
+                                </div>
+                                <p class="mb-4 text-gray-600 dark:text-gray-300">Creates an Expressify application.</p>
+                                <div class="mb-4">
+                                    <div class="text-sm font-bold text-gray-500 dark:text-gray-400 mb-2">Example:</div>
+                                    <div class="code-block">
+                                        <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">from expressify import expressify
+
+app = expressify()</code></pre>
+                                        <button class="copy-button" onclick="copyCode(this)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md transform transition-all hover:shadow-lg">
+                                <div class="flex items-center mb-4">
+                                    <div class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mr-4">
+                                        <i class="fas fa-headphones text-blue-600 dark:text-blue-400"></i>
+                                    </div>
+                                    <h3 class="text-xl font-bold">app.listen(port, hostname, callback=None)</h3>
+                                </div>
+                                <p class="mb-4 text-gray-600 dark:text-gray-300">Starts a server and listens for connections on the specified host and port.</p>
+                                <div class="mb-6">
+                                    <div class="text-sm font-bold text-gray-500 dark:text-gray-400 mb-2">Parameters:</div>
+                                    <ul class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                        <li class="bg-gray-50 dark:bg-gray-800/70 p-4 rounded-md">
+                                            <span class="font-semibold text-primary-600 dark:text-primary-400">port</span>
+                                            <p class="text-sm text-gray-600 dark:text-gray-400">Required port number</p>
+                                        </li>
+                                        <li class="bg-gray-50 dark:bg-gray-800/70 p-4 rounded-md">
+                                            <span class="font-semibold text-primary-600 dark:text-primary-400">hostname</span>
+                                            <p class="text-sm text-gray-600 dark:text-gray-400">Required hostname (e.g., '127.0.0.1')</p>
+                                        </li>
+                                        <li class="bg-gray-50 dark:bg-gray-800/70 p-4 rounded-md">
+                                            <span class="font-semibold text-primary-600 dark:text-primary-400">callback</span>
+                                            <p class="text-sm text-gray-600 dark:text-gray-400">Optional function called when server starts</p>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="mb-4">
+                                    <div class="text-sm font-bold text-gray-500 dark:text-gray-400 mb-2">Example:</div>
+                                    <div class="code-block">
+                                        <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">app.listen(port=5000, hostname='0.0.0.0', callback=lambda: print('Server running on port 5000'))</code></pre>
+                                        <button class="copy-button" onclick="copyCode(this)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md transform transition-all hover:shadow-lg">
+                                <div class="flex items-center mb-4">
+                                    <div class="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mr-4">
+                                        <i class="fas fa-plug text-purple-600 dark:text-purple-400"></i>
+                                    </div>
+                                    <h3 class="text-xl font-bold">app.use(path_or_middleware, middleware=None)</h3>
+                                </div>
+                                <p class="mb-4 text-gray-600 dark:text-gray-300">Mounts middleware at the specified path or globally.</p>
+                                <div class="mb-6">
+                                    <div class="text-sm font-bold text-gray-500 dark:text-gray-400 mb-2">Parameters:</div>
+                                    <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                        <li class="bg-gray-50 dark:bg-gray-800/70 p-4 rounded-md">
+                                            <span class="font-semibold text-primary-600 dark:text-primary-400">path_or_middleware</span>
+                                            <p class="text-sm text-gray-600 dark:text-gray-400">Path string or middleware function</p>
+                                        </li>
+                                        <li class="bg-gray-50 dark:bg-gray-800/70 p-4 rounded-md">
+                                            <span class="font-semibold text-primary-600 dark:text-primary-400">middleware</span>
+                                            <p class="text-sm text-gray-600 dark:text-gray-400">Middleware function if path is provided</p>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="mb-4">
+                                    <div class="text-sm font-bold text-gray-500 dark:text-gray-400 mb-2">Example:</div>
+                                    <div class="code-block">
+                                        <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python"># Global middleware
+app.use(logger_middleware)
+
+# Path-specific middleware
+app.use('/admin', auth_middleware)</code></pre>
+                                        <button class="copy-button" onclick="copyCode(this)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md transform transition-all hover:shadow-lg">
+                                <div class="flex items-center mb-4">
+                                    <div class="w-10 h-10 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center mr-4">
+                                        <i class="fas fa-cog text-yellow-600 dark:text-yellow-400"></i>
+                                    </div>
+                                    <h3 class="text-xl font-bold">app.set(name, value)</h3>
+                                </div>
+                                <p class="mb-4 text-gray-600 dark:text-gray-300">Assigns a setting to the application.</p>
+                                <div class="mb-6">
+                                    <div class="text-sm font-bold text-gray-500 dark:text-gray-400 mb-2">Parameters:</div>
+                                    <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                        <li class="bg-gray-50 dark:bg-gray-800/70 p-4 rounded-md">
+                                            <span class="font-semibold text-primary-600 dark:text-primary-400">name</span>
+                                            <p class="text-sm text-gray-600 dark:text-gray-400">Setting name</p>
+                                        </li>
+                                        <li class="bg-gray-50 dark:bg-gray-800/70 p-4 rounded-md">
+                                            <span class="font-semibold text-primary-600 dark:text-primary-400">value</span>
+                                            <p class="text-sm text-gray-600 dark:text-gray-400">Setting value</p>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="mb-4">
+                                    <div class="text-sm font-bold text-gray-500 dark:text-gray-400 mb-2">Example:</div>
+                                    <div class="code-block">
+                                        <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">app.set('view engine', 'jinja2')
+app.set('views', './views')</code></pre>
+                                        <button class="copy-button" onclick="copyCode(this)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <!-- App Properties -->
+                    <section id="app-properties" class="mb-12">
+                        <h2 class="text-2xl font-bold mb-6 pb-2 border-b border-gray-200 dark:border-gray-700">Application Properties</h2>
+                        
+                        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm mb-6">
+                            <h3 class="text-xl font-bold mb-3">app.locals</h3>
+                            <p class="mb-3 text-gray-600 dark:text-gray-300">Object for app-level data that persists throughout the lifetime of the application.</p>
+                            <div class="mb-4">
+                                <div class="text-sm font-bold text-gray-500 dark:text-gray-400 mb-1">Example:</div>
+                                <pre class="bg-gray-100 dark:bg-gray-900 p-3 rounded-md"><code class="text-gray-800 dark:text-gray-200">app.locals.title = 'My Application'
+app.locals.version = '1.0.0'</code></pre>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <!-- App Settings -->
+                    <section id="app-settings" class="mb-12">
+                        <h2 class="text-2xl font-bold mb-6 pb-2 border-b border-gray-200 dark:border-gray-700">Application Settings</h2>
+                        
+                        <div class="space-y-4">
+                            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+                                <h3 class="text-xl font-bold mb-3">Common Settings</h3>
+                                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                    <thead>
+                                        <tr>
+                                            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">Setting</th>
+                                            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">Type</th>
+                                            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+                                        <tr>
+                                            <td class="px-4 py-3 text-sm font-medium">view engine</td>
+                                            <td class="px-4 py-3 text-sm">String</td>
+                                            <td class="px-4 py-3 text-sm">The template engine to use ('jinja2')</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-4 py-3 text-sm font-medium">views</td>
+                                            <td class="px-4 py-3 text-sm">String</td>
+                                            <td class="px-4 py-3 text-sm">Directory path for template files</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-4 py-3 text-sm font-medium">trust proxy</td>
+                                            <td class="px-4 py-3 text-sm">Boolean</td>
+                                            <td class="px-4 py-3 text-sm">When true, trust the X-Forwarded-* headers</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-4 py-3 text-sm font-medium">json spaces</td>
+                                            <td class="px-4 py-3 text-sm">Number</td>
+                                            <td class="px-4 py-3 text-sm">Spaces for JSON responses indentation</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <!-- Routing -->
+                    <section id="routing" class="mb-12">
+                        <h2 class="text-2xl font-bold mb-6 pb-2 border-b border-gray-200 dark:border-gray-700 flex items-center">
+                            <div class="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center mr-3">
+                                <i class="fas fa-route text-primary-600 dark:text-primary-400"></i>
+                            </div>
+                            Routing
+                        </h2>
+                        
+                        <div class="space-y-8">
+                            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+                                <h3 class="text-xl font-bold mb-3">HTTP Methods</h3>
+                                <p class="mb-3 text-gray-600 dark:text-gray-300">Expressify provides methods for handling different types of HTTP requests. Each method represents a standard HTTP verb and allows you to define how your application responds to client requests.</p>
+                                
+                                <div class="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">
+                                        <div class="flex items-center mb-2">
+                                            <span class="method-badge get-badge">GET</span>
+                                            <h4 class="font-bold">app.get()</h4>
+                                        </div>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400">
+                                            Handles GET requests to retrieve data from the server. Used when clients want to read or fetch resources.
+                                        </p>
+                                    </div>
+                                    <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">
+                                        <div class="flex items-center mb-2">
+                                            <span class="method-badge post-badge">POST</span>
+                                            <h4 class="font-bold">app.post()</h4>
+                                        </div>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400">
+                                            Handles POST requests to create new resources on the server. Used when clients want to submit data.
+                                        </p>
+                                    </div>
+                                    <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">
+                                        <div class="flex items-center mb-2">
+                                            <span class="method-badge put-badge">PUT</span>
+                                            <h4 class="font-bold">app.put()</h4>
+                                        </div>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400">
+                                            Handles PUT requests to completely replace existing resources. Used for updating entire resources.
+                                        </p>
+                                    </div>
+                                    <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">
+                                        <div class="flex items-center mb-2">
+                                            <span class="method-badge delete-badge">DELETE</span>
+                                            <h4 class="font-bold">app.delete()</h4>
+                                        </div>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400">
+                                            Handles DELETE requests to remove resources from the server. Used when clients want to delete data.
+                                        </p>
+                                    </div>
+                                    <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">
+                                        <div class="flex items-center mb-2">
+                                            <span class="method-badge patch-badge">PATCH</span>
+                                            <h4 class="font-bold">app.patch()</h4>
+                                        </div>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400">
+                                            Handles PATCH requests for partial updates to resources. Used when clients want to modify only specific parts of data.
+                                        </p>
+                                    </div>
+                                    <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">
+                                        <div class="flex items-center mb-2">
+                                            <span class="method-badge bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">ALL</span>
+                                            <h4 class="font-bold">app.all()</h4>
+                                        </div>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400">
+                                            Handles all HTTP methods at a specific path. Useful for setting up middleware that should run for all request types.
+                                        </p>
+                                    </div>
+                                </div>
+                                
+                                <h4 class="font-bold mb-2 mt-6">Method Parameters:</h4>
+                                <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-4">
+                                    <ul class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <li>
+                                            <span class="font-semibold text-primary-600 dark:text-primary-400">path</span> <span class="text-xs text-gray-500 dark:text-gray-400">(string, required)</span>
+                                            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                                The URL pattern that the route should match. Can include route parameters like <code>:id</code> to capture values from the URL.
+                                            </p>
+                                        </li>
+                                        <li>
+                                            <span class="font-semibold text-primary-600 dark:text-primary-400">handler</span> <span class="text-xs text-gray-500 dark:text-gray-400">(function, required)</span>
+                                            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                                The function that processes the request. Must accept <code>req</code> and <code>res</code> parameters.
+                                            </p>
+                                        </li>
+                                        <li>
+                                            <span class="font-semibold text-primary-600 dark:text-primary-400">middleware</span> <span class="text-xs text-gray-500 dark:text-gray-400">(list, optional)</span>
+                                            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                                List of middleware functions to run before the handler. Each middleware must accept <code>req</code>, <code>res</code>, and <code>next</code> parameters.
+                                            </p>
+                                        </li>
+                                    </ul>
+                                </div>
+                                
+                                <div data-tab-group="routing-styles" class="mb-6">
+                                    <div class="flex border-b border-gray-200 dark:border-gray-700 mb-4">
+                                        <div class="code-tab px-4 py-2 font-medium" onclick="switchTab('routing-styles', 0)">
+                                            Decorator Syntax
+                                        </div>
+                                        <div class="code-tab px-4 py-2 font-medium" onclick="switchTab('routing-styles', 1)">
+                                            Express-like Syntax
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="code-content bg-white dark:bg-gray-700 p-6 rounded-lg">
+                                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                                            <i class="fas fa-info-circle mr-1"></i> 
+                                            Decorator syntax is more Pythonic and similar to other Python web frameworks like Flask.
+                                        </p>
+                                        <div class="code-block">
+                                            <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">from expressify import expressify
+
+app = expressify()
+
+# Basic GET route
+@app.get('/users')
+def get_users(req, res):
+    res.json([{'name': 'John'}, {'name': 'Jane'}])
+
+# POST route with JSON response
+@app.post('/users')
+def create_user(req, res):
+    user_data = req.body
+    # Process user data...
+    res.status(201).json({'message': 'User created', 'user': user_data})
+
+# Route with path parameter
+@app.get('/users/:id')
+def get_user(req, res):
+    user_id = req.params.get('id')
+    # Fetch user from database...
+    res.json({'id': user_id, 'name': 'Example User'})
+
+# Route with middleware
+@app.get('/admin/dashboard', middleware=[auth_middleware])
+def admin_dashboard(req, res):
+    res.send('Admin Dashboard')</code></pre>
+                                            <button class="copy-button" onclick="copyCode(this)">
+                                                <i class="fas fa-copy"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="code-content hidden bg-white dark:bg-gray-700 p-6 rounded-lg">
+                                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                                            <i class="fas fa-info-circle mr-1"></i> 
+                                            Express-like syntax will feel more familiar to Express.js developers.
+                                        </p>
+                                        <div class="code-block">
+                                            <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">from expressify import expressify
+
+app = expressify()
+
+# Define route handlers as functions
+def get_users(req, res):
+    res.json([{'name': 'John'}, {'name': 'Jane'}])
+
+def create_user(req, res):
+    user_data = req.body
+    # Process user data...
+    res.status(201).json({'message': 'User created', 'user': user_data})
+
+def get_user(req, res):
+    user_id = req.params.get('id')
+    # Fetch user from database...
+    res.json({'id': user_id, 'name': 'Example User'})
+
+def admin_dashboard(req, res):
+    res.send('Admin Dashboard')
+
+# Define auth middleware
+def auth_middleware(req, res, next):
+    if not req.headers.get('Authorization'):
+        return res.status(401).send('Unauthorized')
+    next()
+
+# Register routes with the app
+app.get('/users', get_users)
+app.post('/users', create_user)
+app.get('/users/:id', get_user)
+
+# Route with middleware
+app.get('/admin/dashboard', admin_dashboard, middleware=[auth_middleware])
+# Alternative syntax:
+# app.get('/admin/dashboard', middleware=[auth_middleware], callback=admin_dashboard)</code></pre>
+                                            <button class="copy-button" onclick="copyCode(this)">
+                                                <i class="fas fa-copy"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+                                <h3 class="text-xl font-bold mb-3">Route Parameters</h3>
+                                <p class="mb-3 text-gray-600 dark:text-gray-300">
+                                    Route parameters let you capture values from specific parts of the URL path. They act as placeholders in your route definitions, making your routes more flexible and powerful.
+                                </p>
+                                
+                                <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-4">
+                                    <h4 class="font-bold mb-2">How Parameters Work:</h4>
+                                    <ul class="list-disc list-inside text-gray-600 dark:text-gray-300 space-y-2">
+                                        <li>Parameters are defined with a colon <code>:</code> prefix in the route path</li>
+                                        <li>The parameter name becomes the key you use to access the value in your code</li>
+                                        <li>Access parameters through <code>req.params.get('parameter_name')</code></li>
+                                        <li>Parameter values are always strings, so convert them if needed</li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <h4 class="font-bold mb-2">Examples:</h4>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <h5 class="font-semibold text-primary-600 dark:text-primary-400 mb-2">Single Parameter (Decorator Style)</h5>
+                                            <div class="code-block">
+                                                <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">@app.get('/users/:id')
+def get_user(req, res):
+    user_id = req.params.get('id')
+    res.send(f'User ID: {user_id}')</code></pre>
+                                                <button class="copy-button" onclick="copyCode(this)">
+                                                    <i class="fas fa-copy"></i>
+                                                </button>
+                                            </div>
+                                            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                                                Visiting <code>/users/42</code> would display "User ID: 42".
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <h5 class="font-semibold text-primary-600 dark:text-primary-400 mb-2">Single Parameter (Express Style)</h5>
+                                            <div class="code-block">
+                                                <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">def get_user(req, res):
+    user_id = req.params.get('id')
+    res.send(f'User ID: {user_id}')
+    
+app.get('/users/:id', get_user)</code></pre>
+                                                <button class="copy-button" onclick="copyCode(this)">
+                                                    <i class="fas fa-copy"></i>
+                                                </button>
+                                            </div>
+                                            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                                                Express-style approach for the same route.
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <h5 class="font-semibold text-primary-600 dark:text-primary-400 mb-2">Multiple Parameters (Decorator Style)</h5>
+                                            <div class="code-block">
+                                                <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">@app.get('/users/:user_id/posts/:post_id')
+def get_user_post(req, res):
+    user_id = req.params.get('user_id')
+    post_id = req.params.get('post_id')
+    res.send(f'User {user_id}, Post {post_id}')</code></pre>
+                                                <button class="copy-button" onclick="copyCode(this)">
+                                                    <i class="fas fa-copy"></i>
+                                                </button>
+                                            </div>
+                                            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                                                Visiting <code>/users/42/posts/123</code> would display "User 42, Post 123".
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <h5 class="font-semibold text-primary-600 dark:text-primary-400 mb-2">Multiple Parameters (Express Style)</h5>
+                                            <div class="code-block">
+                                                <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">def get_user_post(req, res):
+    user_id = req.params.get('user_id')
+    post_id = req.params.get('post_id')
+    res.send(f'User {user_id}, Post {post_id}')
+    
+app.get('/users/:user_id/posts/:post_id', get_user_post)</code></pre>
+                                                <button class="copy-button" onclick="copyCode(this)">
+                                                    <i class="fas fa-copy"></i>
+                                                </button>
+                                            </div>
+                                            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                                                Express-style approach for multiple parameters.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+                                <h3 class="text-xl font-bold mb-3">Route Handlers</h3>
+                                <p class="mb-3 text-gray-600 dark:text-gray-300">
+                                    Route handlers are functions that run when a matching request is received. They define what happens when someone visits a specific URL in your application.
+                                </p>
+                                
+                                <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-4">
+                                    <h4 class="font-bold mb-2">Handler Structure:</h4>
+                                    <p class="text-gray-600 dark:text-gray-300 mb-2">
+                                        Every route handler must accept two parameters:
+                                    </p>
+                                    <ul class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <li>
+                                            <span class="font-semibold text-primary-600 dark:text-primary-400">req</span> <span class="text-xs text-gray-500 dark:text-gray-400">(Request object)</span>
+                                            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                                Contains information about the HTTP request, including query parameters, route parameters, headers, and body.
+                                            </p>
+                                        </li>
+                                        <li>
+                                            <span class="font-semibold text-primary-600 dark:text-primary-400">res</span> <span class="text-xs text-gray-500 dark:text-gray-400">(Response object)</span>
+                                            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                                Provides methods to send a response to the client, such as <code>send()</code>, <code>json()</code>, and <code>status()</code>.
+                                            </p>
+                                        </li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <h4 class="font-bold mb-2">Common Response Types:</h4>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">
+                                            <h5 class="font-semibold text-green-600 dark:text-green-400 mb-2">Sending HTML or Text (Decorator Style)</h5>
+                                            <div class="code-block">
+                                                <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">@app.get('/hello')
+def hello(req, res):
+    res.send('<h1>Hello, World!</h1>')</code></pre>
+                                                <button class="copy-button" onclick="copyCode(this)">
+                                                    <i class="fas fa-copy"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">
+                                            <h5 class="font-semibold text-green-600 dark:text-green-400 mb-2">Sending HTML or Text (Express Style)</h5>
+                                            <div class="code-block">
+                                                <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">def hello(req, res):
+    res.send('<h1>Hello, World!</h1>')
+    
+app.get('/hello', hello)</code></pre>
+                                                <button class="copy-button" onclick="copyCode(this)">
+                                                    <i class="fas fa-copy"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">
+                                            <h5 class="font-semibold text-blue-600 dark:text-blue-400 mb-2">Sending JSON Data (Decorator Style)</h5>
+                                            <div class="code-block">
+                                                <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">@app.get('/api/data')
+def get_data(req, res):
+    res.json({
+        'name': 'Example',
+        'items': [1, 2, 3]
+    })</code></pre>
+                                                <button class="copy-button" onclick="copyCode(this)">
+                                                    <i class="fas fa-copy"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">
+                                            <h5 class="font-semibold text-blue-600 dark:text-blue-400 mb-2">Sending JSON Data (Express Style)</h5>
+                                            <div class="code-block">
+                                                <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">def get_data(req, res):
+    res.json({
+        'name': 'Example',
+        'items': [1, 2, 3]
+    })
+    
+app.get('/api/data', get_data)</code></pre>
+                                                <button class="copy-button" onclick="copyCode(this)">
+                                                    <i class="fas fa-copy"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">
+                                            <h5 class="font-semibold text-purple-600 dark:text-purple-400 mb-2">Status Codes (Decorator Style)</h5>
+                                            <div class="code-block">
+                                                <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">@app.post('/api/items')
+def create_item(req, res):
+    # Create item logic...
+    res.status(201).json({'message': 'Created'})</code></pre>
+                                                <button class="copy-button" onclick="copyCode(this)">
+                                                    <i class="fas fa-copy"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">
+                                            <h5 class="font-semibold text-purple-600 dark:text-purple-400 mb-2">Status Codes (Express Style)</h5>
+                                            <div class="code-block">
+                                                <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">def create_item(req, res):
+    # Create item logic...
+    res.status(201).json({'message': 'Created'})
+    
+app.post('/api/items', create_item)</code></pre>
+                                                <button class="copy-button" onclick="copyCode(this)">
+                                                    <i class="fas fa-copy"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">
+                                            <h5 class="font-semibold text-red-600 dark:text-red-400 mb-2">Error Responses (Decorator Style)</h5>
+                                            <div class="code-block">
+                                                <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">@app.get('/api/protected')
+def protected(req, res):
+    if not is_authenticated(req):
+        return res.status(401).json({
+            'error': 'Unauthorized'
+        })</code></pre>
+                                                <button class="copy-button" onclick="copyCode(this)">
+                                                    <i class="fas fa-copy"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">
+                                            <h5 class="font-semibold text-red-600 dark:text-red-400 mb-2">Error Responses (Express Style)</h5>
+                                            <div class="code-block">
+                                                <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">def protected(req, res):
+    if not is_authenticated(req):
+        return res.status(401).json({
+            'error': 'Unauthorized'
+        })
+        
+app.get('/api/protected', protected)</code></pre>
+                                                <button class="copy-button" onclick="copyCode(this)">
+                                                    <i class="fas fa-copy"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <!-- Response Methods -->
+                    <section id="response-methods" class="mb-12">
+                        <h2 class="text-2xl font-bold mb-6 pb-2 border-b border-gray-200 dark:border-gray-700 flex items-center">
+                            <div class="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mr-3">
+                                <i class="fas fa-reply text-green-600 dark:text-green-400"></i>
+                            </div>
+                            Response Methods
+                        </h2>
+                        
+                        <div class="space-y-8">
+                            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+                                <h3 class="text-xl font-bold mb-4">Sending Responses</h3>
+                                <p class="mb-4 text-gray-600 dark:text-gray-300">
+                                    Response methods allow you to send different types of data back to the client. Each method terminates the request-response cycle unless otherwise specified.
+                                </p>
+                                
+                                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                                    <div class="bg-gray-50 dark:bg-gray-700/50 p-5 rounded-lg">
+                                        <h4 class="text-lg font-semibold text-green-700 dark:text-green-400 mb-3">res.send(data)</h4>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                                            Sends a response with the provided data. The data type determines the Content-Type header.
+                                        </p>
+                                        <div class="code-block">
+                                            <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">@app.get('/hello')
+def hello(req, res):
+    res.send('Hello, World!')</code></pre>
+                                            <button class="copy-button" onclick="copyCode(this)">
+                                                <i class="fas fa-copy"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-gray-50 dark:bg-gray-700/50 p-5 rounded-lg">
+                                        <h4 class="text-lg font-semibold text-blue-700 dark:text-blue-400 mb-3">res.json(obj)</h4>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                                            Sends a JSON response. Automatically sets the Content-Type header to application/json.
+                                        </p>
+                                        <div class="code-block">
+                                            <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">@app.get('/api/data')
+def get_data(req, res):
+    res.json({
+        'name': 'Example',
+        'items': [1, 2, 3],
+        'active': True
+    })</code></pre>
+                                            <button class="copy-button" onclick="copyCode(this)">
+                                                <i class="fas fa-copy"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-gray-50 dark:bg-gray-700/50 p-5 rounded-lg">
+                                        <h4 class="text-lg font-semibold text-purple-700 dark:text-purple-400 mb-3">res.status(code)</h4>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                                            Sets the HTTP status code for the response. This method is chainable.
+                                        </p>
+                                        <div class="code-block">
+                                            <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">@app.post('/api/items')
+def create_item(req, res):
+    # Create item logic...
+    res.status(201).json({
+        'message': 'Item created',
+        'id': 'new-item-id'
+    })</code></pre>
+                                            <button class="copy-button" onclick="copyCode(this)">
+                                                <i class="fas fa-copy"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-gray-50 dark:bg-gray-700/50 p-5 rounded-lg">
+                                        <h4 class="text-lg font-semibold text-red-700 dark:text-red-400 mb-3">res.redirect(path)</h4>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                                            Redirects the request to the specified path with status code 302 by default.
+                                        </p>
+                                        <div class="code-block">
+                                            <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">@app.get('/old-page')
+def old_page(req, res):
+    # Temporary redirect (302)
+    res.redirect('/new-page')</code></pre>
+                                            <button class="copy-button" onclick="copyCode(this)">
+                                                <i class="fas fa-copy"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+                                <h3 class="text-xl font-bold mb-4">Method Chaining</h3>
+                                <p class="mb-4 text-gray-600 dark:text-gray-300">
+                                    Many response methods return the response object, allowing you to chain multiple methods together for more concise code.
+                                </p>
+                                
+                                <div class="code-block">
+                                    <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">@app.get('/api/chainable')
+def chainable(req, res):
+    res.status(200)
+       .set_header('X-Custom-Header', 'value')
+       .set_header('Content-Type', 'application/json')
+       .send('{"message": "Success"}')</code></pre>
+                                    <button class="copy-button" onclick="copyCode(this)">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+                                
+                                <div class="mt-6 bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-lg flex">
+                                    <div class="flex-shrink-0 mr-3 mt-1">
+                                        <i class="fas fa-lightbulb text-indigo-500 text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-indigo-700 dark:text-indigo-300 mb-1">Pro Tip</h4>
+                                        <p class="text-gray-600 dark:text-gray-400">
+                                            Only methods that don't end the request-response cycle (like <code>status()</code> and <code>set_header()</code>) can be chained.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <!-- Middleware Usage -->
+                    <section id="middleware-usage" class="mb-12">
+                        <h2 class="text-2xl font-bold mb-6 pb-2 border-b border-gray-200 dark:border-gray-700 flex items-center">
+                            <div class="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mr-3">
+                                <i class="fas fa-filter text-purple-600 dark:text-purple-400"></i>
+                            </div>
+                            Using Middleware
+                        </h2>
+                        
+                        <div class="space-y-8">
+                            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+                                <h3 class="text-xl font-bold mb-4">Middleware Basics</h3>
+                                <p class="mb-4 text-gray-600 dark:text-gray-300">
+                                    Middleware functions are functions that have access to the request object, response object, and the next middleware function in the application's request-response cycle. Middleware can:
+                                </p>
+                                
+                                <ul class="list-disc list-inside ml-4 text-gray-600 dark:text-gray-300 space-y-1 mb-6">
+                                    <li>Process incoming requests before they reach route handlers</li>
+                                    <li>Modify the request and response objects</li>
+                                    <li>End the request-response cycle early</li>
+                                    <li>Call the next middleware function in the stack</li>
+                                </ul>
+                                
+                                <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-6">
+                                    <h4 class="font-bold mb-2">Middleware Structure:</h4>
+                                    <p class="text-gray-600 dark:text-gray-300 mb-2">
+                                        Every middleware function follows the same pattern and must accept three parameters:
+                                    </p>
+                                    <ul class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <li>
+                                            <span class="font-semibold text-primary-600 dark:text-primary-400">req</span> <span class="text-xs text-gray-500 dark:text-gray-400">(Request object)</span>
+                                            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                                Contains information about the HTTP request.
+                                            </p>
+                                        </li>
+                                        <li>
+                                            <span class="font-semibold text-primary-600 dark:text-primary-400">res</span> <span class="text-xs text-gray-500 dark:text-gray-400">(Response object)</span>
+                                            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                                Provides methods to send responses.
+                                            </p>
+                                        </li>
+                                        <li>
+                                            <span class="font-semibold text-primary-600 dark:text-primary-400">next</span> <span class="text-xs text-gray-500 dark:text-gray-400">(Function)</span>
+                                            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                                A function that passes control to the next middleware. You must call <code>next()</code> unless you want to end the request cycle.
+                                            </p>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+                                <h3 class="text-xl font-bold mb-3">Registering Middleware</h3>
+                                <p class="mb-3 text-gray-600 dark:text-gray-300">
+                                    Expressify provides two different ways to register middleware in your application. You can use either the decorator syntax (Python-idiomatic) or the Express-like function call syntax. Both approaches achieve the same result.
+                                </p>
+                                
+                                <div data-tab-group="middleware-styles" class="mb-6">
+                                    <div class="flex border-b border-gray-200 dark:border-gray-700 mb-4">
+                                        <div class="code-tab px-4 py-2 font-medium" onclick="switchTab('middleware-styles', 0)">
+                                            Decorator Syntax
+                                        </div>
+                                        <div class="code-tab px-4 py-2 font-medium" onclick="switchTab('middleware-styles', 1)">
+                                            Express-like Syntax
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="code-content bg-white dark:bg-gray-700 p-6 rounded-lg">
+                                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                                            <i class="fas fa-info-circle mr-1"></i> 
+                                            The decorator syntax is more Pythonic and allows you to apply middleware with the <code>@app.use</code> decorator or directly in route definitions.
+                                        </p>
+                                        <div class="code-block">
+                                            <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">from expressify import expressify
+
+app = expressify()
+
+# Global middleware using decorator
+@app.use
+def logger_middleware(req, res, next):
+    print(f"{req.method} {req.path}")
+    next()
+
+# Define authentication middleware
+def auth_middleware(req, res, next):
+    if not req.headers.get('Authorization'):
+        return res.status(401).send('Unauthorized')
+    next()
+
+# Regular route - no middleware
+@app.get('/')
+def home(req, res):
+    res.send('Home page')
+
+# Route with middleware parameter
+@app.get('/admin', [auth_middleware])
+def admin(req, res):
+    res.send('Admin dashboard')
+
+# Multiple middleware functions
+@app.get('/profile', [auth_middleware, logger_middleware])
+def profile(req, res):
+    res.send('User profile')
+
+if __name__ == '__main__':
+    app.listen(port=3000, hostname='127.0.0.1')</code></pre>
+                                            <button class="copy-button" onclick="copyCode(this)">
+                                                <i class="fas fa-copy"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="code-content hidden bg-white dark:bg-gray-700 p-6 rounded-lg">
+                                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                                            <i class="fas fa-info-circle mr-1"></i> 
+                                            The Express-like syntax will feel more familiar to Express.js developers. It uses function calls like <code>app.use()</code> for registering middleware.
+                                        </p>
+                                        <div class="code-block">
+                                            <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">from expressify import expressify
+
+app = expressify()
+
+# Middleware definitions
+def logger_middleware(req, res, next):
+    print(f"{req.method} {req.path}")
+    next()
+
+def auth_middleware(req, res, next):
+    if not req.headers.get('Authorization'):
+        return res.status(401).send('Unauthorized')
+    next()
+
+# Apply middleware globally
+app.use(logger_middleware)
+
+# Path-specific middleware
+app.use('/admin', auth_middleware)
+
+# Define routes
+@app.get('/')
+def home(req, res):
+    res.send('Home page')
+
+@app.get('/admin')
+def admin(req, res):
+    res.send('Admin dashboard')
+
+@app.get('/profile')
+def profile(req, res):
+    res.send('User profile')
+
+if __name__ == '__main__':
+    app.listen(port=3000, hostname='127.0.0.1')</code></pre>
+                                            <button class="copy-button" onclick="copyCode(this)">
+                                                <i class="fas fa-copy"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+                                <h3 class="text-xl font-bold mb-4">Middleware Examples</h3>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                    <div class="bg-gray-50 dark:bg-gray-700/50 p-5 rounded-lg">
+                                        <h4 class="text-lg font-semibold text-blue-700 dark:text-blue-400 mb-3">Authentication Middleware</h4>
+                                        <div class="code-block">
+                                            <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">def auth_middleware(req, res, next):
+    """Check for API key on protected routes"""
+    if req.path.startswith('/protected'):
+        api_key = req.get_header('x-api-key')
+        
+        if not api_key:
+            return res.status(401).json({
+                'error': 'Authentication required',
+                'message': 'Missing API key. Please provide X-API-Key header.'
+            })
+        
+        if api_key != 'abc123':
+            return res.status(403).json({
+                'error': 'Access denied',
+                'message': 'Invalid API key'
+            })
+        
+        # If authentication passes, add user info to request
+        req.user = {'id': 123, 'role': 'user'}
+    
+    # Call the next middleware/route handler
+    return next()
+
+# Apply middleware to all routes
+app.use(auth_middleware)
+
+# This route requires API key
+@app.get('/protected/data')
+def protected_data(req, res):
+    # The auth middleware will have already verified the API key
+    return res.json({
+        'message': 'You have accessed protected data',
+        'user': req.user,
+        'timestamp': time.time()
+    })</code></pre>
+                                            <button class="copy-button" onclick="copyCode(this)">
+                                                <i class="fas fa-copy"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-gray-50 dark:bg-gray-700/50 p-5 rounded-lg">
+                                        <h4 class="text-lg font-semibold text-blue-700 dark:text-blue-400 mb-3">Rate Limiter Middleware</h4>
+                                        <div class="code-block">
+                                            <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python"># Rate Limiter Middleware
+def rate_limiter(max_requests=100, window_seconds=60):
+    """
+    Creates a rate limiting middleware function
+    
+    Args:
+        max_requests (int): Maximum number of requests allowed
+        window_seconds (int): Time window in seconds
+    """
+    # Store request timestamps for each client
+    clients = {}
+    
+    def middleware(req, res, next):
+        client_ip = req.get_header("x-forwarded-for") or req.remote_addr
+        
+        # Initialize client record if doesn't exist
+        if client_ip not in clients:
+            clients[client_ip] = []
+        
+        # Get current time
+        now = time.time()
+        
+        # Remove requests outside the window
+        clients[client_ip] = [t for t in clients[client_ip] if now - t < window_seconds]
+        
+        # Check if client has exceeded rate limit
+        if len(clients[client_ip]) >= max_requests:
+            return res.status(429).json({
+                "error": "Too Many Requests",
+                "message": f"Rate limit of {max_requests} requests per {window_seconds} seconds exceeded"
+            })
+        
+        # Add current request timestamp
+        clients[client_ip].append(now)
+        
+        # Add rate limit headers
+        remaining = max_requests - len(clients[client_ip])
+        res.set_header("X-RateLimit-Limit", str(max_requests))
+        res.set_header("X-RateLimit-Remaining", str(remaining))
+        res.set_header("X-RateLimit-Reset", str(int(now + window_seconds)))
+        
+        return next()
+    
+    return middleware
+
+# Create API rate limiter with custom limits
+api_rate_limiter = rate_limiter(max_requests=5, window_seconds=10)
+
+# Apply to specific routes
+@app.get('/api/status', [api_rate_limiter])
+def api_status(req, res):
+    return res.json({
+        "status": "online",
+        "timestamp": time.time()
+    })</code></pre>
+                                            <button class="copy-button" onclick="copyCode(this)">
+                                                <i class="fas fa-copy"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-6 bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg flex">
+                                    <div class="flex-shrink-0 mr-3 mt-1">
+                                        <i class="fas fa-lightbulb text-yellow-500 text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-yellow-700 dark:text-yellow-300 mb-1">Best Practice</h4>
+                                        <p class="text-gray-600 dark:text-gray-400">
+                                            For error handling middleware, it's recommended to define it as the first middleware in your application. This ensures that any errors thrown in subsequent middleware or route handlers will be caught and handled properly.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+                                <h3 class="text-xl font-bold mb-4">Middleware Order</h3>
+                                <p class="mb-4 text-gray-600 dark:text-gray-300">
+                                    Middleware functions are executed in the order they are defined. This means that the order in which you register middleware is important.
+                                </p>
+                                
+                                <div class="code-block">
+                                    <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">from expressify import expressify
+
+app = expressify()
+
+# Register middleware in specific order
+@app.use
+def middleware1(req, res, next):
+    print("Middleware 1 - Before")
+    next()
+    print("Middleware 1 - After")
+
+@app.use
+def middleware2(req, res, next):
+    print("Middleware 2 - Before")
+    next()
+    print("Middleware 2 - After")
+
+@app.get('/')
+def home(req, res):
+    print("Route Handler")
+    res.send('Home')
+
+# Output for a request to '/' would be:
+# Middleware 1 - Before
+# Middleware 2 - Before
+# Route Handler
+# Middleware 2 - After
+# Middleware 1 - After</code></pre>
+                                    <button class="copy-button" onclick="copyCode(this)">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+                                
+                                <div class="mt-6 flex gap-4">
+                                    <div class="flex-1 bg-white dark:bg-gray-700 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600">
+                                        <h4 class="font-bold text-primary-700 dark:text-primary-400 mb-2">Middleware Execution Flow</h4>
+                                        <div class="text-center py-4">
+                                            <div class="inline-block p-4 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
+                                                <div class="text-center mb-2 font-bold">Request</div>
+                                                <div class="flex items-center justify-center">
+                                                    <div class="h-0.5 w-10 bg-gray-400"></div>
+                                                    <div class="mx-2">↓</div>
+                                                    <div class="h-0.5 w-10 bg-gray-400"></div>
+                                                </div>
+                                                <div class="grid grid-cols-1 gap-2 mb-2">
+                                                    <div class="p-2 rounded bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200">Global Middleware</div>
+                                                    <div class="p-2 rounded bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200">Path-specific Middleware</div>
+                                                    <div class="p-2 rounded bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200">Route-specific Middleware</div>
+                                                    <div class="p-2 rounded bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200">Route Handler</div>
+                                                </div>
+                                                <div class="flex items-center justify-center">
+                                                    <div class="h-0.5 w-10 bg-gray-400"></div>
+                                                    <div class="mx-2">↓</div>
+                                                    <div class="h-0.5 w-10 bg-gray-400"></div>
+                                                </div>
+                                                <div class="text-center mt-2 font-bold">Response</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Request -->
+                    <section id="request" class="mb-12">
+                        <h2 class="text-2xl font-bold mb-6 pb-2 border-b border-gray-200 dark:border-gray-700 flex items-center">
+                            <div class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mr-3">
+                                <i class="fas fa-arrow-right text-blue-600 dark:text-blue-400"></i>
+                            </div>
+                            Request Object
+                        </h2>
+                        
+                        <div class="space-y-8">
+                            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+                                <h3 class="text-xl font-bold mb-3">Request Basics</h3>
+                                <p class="mb-3 text-gray-600 dark:text-gray-300">
+                                    The request object contains information about the incoming request, such as the HTTP method, URL, headers, and body.
+                                </p>
+                                
+                                <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-4">
+                                    <h4 class="font-bold mb-2">Request Methods:</h4>
+                                    <ul class="list-disc list-inside text-gray-600 dark:text-gray-300 space-y-2">
+                                        <li>GET: Retrieves data from the server</li>
+                                        <li>POST: Submits data to be processed</li>
+                                        <li>PUT: Updates existing data on the server</li>
+                                        <li>DELETE: Deletes data from the server</li>
+                                        <li>PATCH: Partially updates data on the server</li>
+                                        <li>OPTIONS: Describes HTTP methods supported by the server</li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <h4 class="font-bold mb-2">Request Headers:</h4>
+                                    <p class="text-gray-600 dark:text-gray-300 mb-2">
+                                        Headers are key-value pairs that provide additional information about the request.
+                                    </p>
+                                    <ul class="list-disc list-inside text-gray-600 dark:text-gray-300 space-y-2">
+                                        <li>Authorization: Authentication token</li>
+                                        <li>Content-Type: Type of data being sent</li>
+                                        <li>Accept: Accepted response content types</li>
+                                        <li>User-Agent: Information about the client software</li>
+                                        <li>X-Forwarded-For: IP address of the client</li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <h4 class="font-bold mb-2">Query Parameters:</h4>
+                                    <p class="text-gray-600 dark:text-gray-300 mb-2">
+                                        Query parameters are appended to the URL and are used to send data to the server.
+                                    </p>
+                                    <div class="code-block">
+                                        <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">@app.get('/search')
+def search(req, res):
+    query = req.query.get('q')
+    res.send(f'Searching for: {query}')</code></pre>
+                                        <button class="copy-button" onclick="copyCode(this)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <h4 class="font-bold mb-2">Route Parameters:</h4>
+                                    <p class="text-gray-600 dark:text-gray-300 mb-2">
+                                        Route parameters are part of the URL path and are used to capture values from the URL.
+                                    </p>
+                                    <div class="code-block">
+                                        <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">@app.get('/users/:id')
+def get_user(req, res):
+    user_id = req.params.get('id')
+    res.send(f'User ID: {user_id}')</code></pre>
+                                        <button class="copy-button" onclick="copyCode(this)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <h4 class="font-bold mb-2">Request Body:</h4>
+                                    <p class="text-gray-600 dark:text-gray-300 mb-2">
+                                        The request body contains data sent by the client to the server.
+                                    </p>
+                                    <div class="code-block">
+                                        <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">@app.post('/users')
+def create_user(req, res):
+    user_data = req.body
+    # Process user data...
+    res.status(201).json({'message': 'User created', 'user': user_data})</code></pre>
+                                        <button class="copy-button" onclick="copyCode(this)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+                                <h3 class="text-xl font-bold mb-3">Request Object Methods</h3>
+                                <p class="mb-3 text-gray-600 dark:text-gray-300">
+                                    The request object provides several methods to access information about the request.
+                                </p>
+                                
+                                <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-4">
+                                    <h4 class="font-bold mb-2">req.method:</h4>
+                                    <p class="text-gray-600 dark:text-gray-300 mb-2">
+                                        Returns the HTTP method of the request.
+                                    </p>
+                                    <div class="code-block">
+                                        <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">@app.get('/')
+def home(req, res):
+    res.send(f"Method: {req.method}")</code></pre>
+                                        <button class="copy-button" onclick="copyCode(this)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-4">
+                                    <h4 class="font-bold mb-2">req.url:</h4>
+                                    <p class="text-gray-600 dark:text-gray-300 mb-2">
+                                        Returns the full URL of the request.
+                                    </p>
+                                    <div class="code-block">
+                                        <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">@app.get('/')
+def home(req, res):
+    res.send(f"URL: {req.url}")</code></pre>
+                                        <button class="copy-button" onclick="copyCode(this)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-4">
+                                    <h4 class="font-bold mb-2">req.headers:</h4>
+                                    <p class="text-gray-600 dark:text-gray-300 mb-2">
+                                        Returns a dictionary of request headers.
+                                    </p>
+                                    <div class="code-block">
+                                        <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">@app.get('/')
+def home(req, res):
+    res.send(f"Headers: {req.headers}")</code></pre>
+                                        <button class="copy-button" onclick="copyCode(this)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-4">
+                                    <h4 class="font-bold mb-2">req.query:</h4>
+                                    <p class="text-gray-600 dark:text-gray-300 mb-2">
+                                        Returns a dictionary of query parameters.
+                                    </p>
+                                    <div class="code-block">
+                                        <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">@app.get('/search')
+def search(req, res):
+    query = req.query.get('q')
+    res.send(f'Searching for: {query}')</code></pre>
+                                        <button class="copy-button" onclick="copyCode(this)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-4">
+                                    <h4 class="font-bold mb-2">req.params:</h4>
+                                    <p class="text-gray-600 dark:text-gray-300 mb-2">
+                                        Returns a dictionary of route parameters.
+                                    </p>
+                                    <div class="code-block">
+                                        <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">@app.get('/users/:id')
+def get_user(req, res):
+    user_id = req.params.get('id')
+    res.send(f'User ID: {user_id}')</code></pre>
+                                        <button class="copy-button" onclick="copyCode(this)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-4">
+                                    <h4 class="font-bold mb-2">req.body:</h4>
+                                    <p class="text-gray-600 dark:text-gray-300 mb-2">
+                                        Contains the parsed request body.
+                                    </p>
+                                    <div class="code-block">
+                                        <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">@app.post('/users')
+def create_user(req, res):
+    user_data = req.body
+    # Process user data...
+    res.status(201).json({'message': 'User created', 'user': user_data})</code></pre>
+                                        <button class="copy-button" onclick="copyCode(this)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Response -->
+                    <section id="response" class="mb-12">
+                        <h2 class="text-2xl font-bold mb-6 pb-2 border-b border-gray-200 dark:border-gray-700 flex items-center">
+                            <div class="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mr-3">
+                                <i class="fas fa-arrow-left text-green-600 dark:text-green-400"></i>
+                            </div>
+                            Response Object
+                        </h2>
+                        
+                        <div class="space-y-8">
+                            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+                                <h3 class="text-xl font-bold mb-3">Response Basics</h3>
+                                <p class="mb-3 text-gray-600 dark:text-gray-300">
+                                    The response object is used to send data back to the client. It provides methods to set the status code, headers, and body.
+                                </p>
+                                
+                                <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-4">
+                                    <h4 class="font-bold mb-2">Setting Status Code:</h4>
+                                    <p class="text-gray-600 dark:text-gray-300 mb-2">
+                                        Use <code>res.status(code)</code> to set the HTTP status code.
+                                    </p>
+                                    <div class="code-block">
+                                        <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">@app.get('/')
+def home(req, res):
+    res.status(200).send('OK')</code></pre>
+                                        <button class="copy-button" onclick="copyCode(this)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-4">
+                                    <h4 class="font-bold mb-2">Setting Headers:</h4>
+                                    <p class="text-gray-600 dark:text-gray-300 mb-2">
+                                        Use <code>res.set_header('Header-Name', 'Value')</code> to set custom headers.
+                                    </p>
+                                    <div class="code-block">
+                                        <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">@app.get('/')
+def home(req, res):
+    res.set_header('X-Custom-Header', 'Value')
+    res.send('OK')</code></pre>
+                                        <button class="copy-button" onclick="copyCode(this)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-4">
+                                    <h4 class="font-bold mb-2">Sending Data:</h4>
+                                    <p class="text-gray-600 dark:text-gray-300 mb-2">
+                                        Use <code>res.send(data)</code> to send various types of data back to the client.
+                                    </p>
+                                    <div class="code-block">
+                                        <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">@app.get('/')
+def home(req, res):
+    res.send('Hello, World!')</code></pre>
+                                        <button class="copy-button" onclick="copyCode(this)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-4">
+                                    <h4 class="font-bold mb-2">Sending JSON:</h4>
+                                    <p class="text-gray-600 dark:text-gray-300 mb-2">
+                                        Use <code>res.json(obj)</code> to send JSON data back to the client.
+                                    </p>
+                                    <div class="code-block">
+                                        <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">@app.get('/api/data')
+def get_data(req, res):
+    res.json({
+        'name': 'Example',
+        'items': [1, 2, 3]
+    })</code></pre>
+                                        <button class="copy-button" onclick="copyCode(this)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-4">
+                                    <h4 class="font-bold mb-2">Redirecting:</h4>
+                                    <p class="text-gray-600 dark:text-gray-300 mb-2">
+                                        Use <code>res.redirect(path)</code> to redirect the request to a different path.
+                                    </p>
+                                    <div class="code-block">
+                                        <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">@app.get('/old-page')
+def old_page(req, res):
+    # Temporary redirect (302)
+    res.redirect('/new-page')</code></pre>
+                                        <button class="copy-button" onclick="copyCode(this)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+                                <h3 class="text-xl font-bold mb-3">Response Object Methods</h3>
+                                <p class="mb-3 text-gray-600 dark:text-gray-300">
+                                    The response object provides several methods to send data back to the client.
+                                </p>
+                                
+                                <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-4">
+                                    <h4 class="font-bold mb-2">res.status(code):</h4>
+                                    <p class="text-gray-600 dark:text-gray-300 mb-2">
+                                        Sets the HTTP status code for the response.
+                                    </p>
+                                    <div class="code-block">
+                                        <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">@app.get('/')
+def home(req, res):
+    res.status(200).send('OK')</code></pre>
+                                        <button class="copy-button" onclick="copyCode(this)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-4">
+                                    <h4 class="font-bold mb-2">res.set_header('Header-Name', 'Value'):</h4>
+                                    <p class="text-gray-600 dark:text-gray-300 mb-2">
+                                        Sets a custom header for the response.
+                                    </p>
+                                    <div class="code-block">
+                                        <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">@app.get('/')
+def home(req, res):
+    res.set_header('X-Custom-Header', 'Value')
+    res.send('OK')</code></pre>
+                                        <button class="copy-button" onclick="copyCode(this)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-4">
+                                    <h4 class="font-bold mb-2">res.type(content_type):</h4>
+                                    <p class="text-gray-600 dark:text-gray-300 mb-2">
+                                        Sets the Content-Type HTTP header for the response.
+                                    </p>
+                                    <div class="code-block">
+                                        <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python"># Setting different content types
+@app.get('/text')
+def text(req, res):
+    res.type('text/plain').send('Plain text content')
+
+@app.get('/html')
+def html(req, res):
+    res.type('text/html').send('<html><body><h1>HTML Content</h1></body></html>')
+
+@app.get('/xml')
+def xml(req, res):
+    res.type('application/xml').send('<root><message>XML Content</message></root>')
+
+@app.get('/css')
+def css(req, res):
+    res.type('text/css').send('body { color: blue; }')</code></pre>
+                                        <button class="copy-button" onclick="copyCode(this)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-4">
+                                    <h4 class="font-bold mb-2">res.send(data):</h4>
+                                    <p class="text-gray-600 dark:text-gray-300 mb-2">
+                                        Sends various types of data back to the client.
+                                    </p>
+                                    <div class="code-block">
+                                        <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">@app.get('/')
+def home(req, res):
+    res.send('Hello, World!')</code></pre>
+                                        <button class="copy-button" onclick="copyCode(this)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-4">
+                                    <h4 class="font-bold mb-2">res.json(obj):</h4>
+                                    <p class="text-gray-600 dark:text-gray-300 mb-2">
+                                        Sends JSON data back to the client.
+                                    </p>
+                                    <div class="code-block">
+                                        <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">@app.get('/api/data')
+def get_data(req, res):
+    res.json({
+        'name': 'Example',
+        'items': [1, 2, 3]
+    })</code></pre>
+                                        <button class="copy-button" onclick="copyCode(this)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-4">
+                                    <h4 class="font-bold mb-2">res.redirect(path):</h4>
+                                    <p class="text-gray-600 dark:text-gray-300 mb-2">
+                                        Redirects the request to a different path.
+                                    </p>
+                                    <div class="code-block">
+                                        <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">@app.get('/old-page')
+def old_page(req, res):
+    # Temporary redirect (302)
+    res.redirect('/new-page')</code></pre>
+                                        <button class="copy-button" onclick="copyCode(this)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Middleware -->
+                    <section id="middleware" class="mb-12">
+                        <h2 class="text-2xl font-bold mb-6 pb-2 border-b border-gray-200 dark:border-gray-700 flex items-center">
+                            <div class="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mr-3">
+                                <i class="fas fa-layer-group text-purple-600 dark:text-purple-400"></i>
+                            </div>
+                            Middleware
+                        </h2>
+                        
+                        <div class="space-y-8">
+                            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+                                <h3 class="text-xl font-bold mb-3">Middleware Basics</h3>
+                                <p class="mb-3 text-gray-600 dark:text-gray-300">
+                                    Middleware functions are functions that have access to the request object, response object, and the next middleware function in the application's request-response cycle. Middleware can:
+                                </p>
+                                
+                                <ul class="list-disc list-inside ml-4 text-gray-600 dark:text-gray-300 space-y-1 mb-6">
+                                    <li>Process incoming requests before they reach route handlers</li>
+                                    <li>Modify the request and response objects</li>
+                                    <li>End the request-response cycle early</li>
+                                    <li>Call the next middleware function in the stack</li>
+                                </ul>
+                                
+                                <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-6">
+                                    <h4 class="font-bold mb-2">Middleware Structure:</h4>
+                                    <p class="text-gray-600 dark:text-gray-300 mb-2">
+                                        Every middleware function follows the same pattern and must accept three parameters:
+                                    </p>
+                                    <ul class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <li>
+                                            <span class="font-semibold text-primary-600 dark:text-primary-400">req</span> <span class="text-xs text-gray-500 dark:text-gray-400">(Request object)</span>
+                                            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                                Contains information about the HTTP request.
+                                            </p>
+                                        </li>
+                                        <li>
+                                            <span class="font-semibold text-primary-600 dark:text-primary-400">res</span> <span class="text-xs text-gray-500 dark:text-gray-400">(Response object)</span>
+                                            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                                Provides methods to send responses.
+                                            </p>
+                                        </li>
+                                        <li>
+                                            <span class="font-semibold text-primary-600 dark:text-primary-400">next</span> <span class="text-xs text-gray-500 dark:text-gray-400">(Function)</span>
+                                            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                                A function that passes control to the next middleware. You must call <code>next()</code> unless you want to end the request cycle.
+                                            </p>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+                                <h3 class="text-xl font-bold mb-3">Registering Middleware</h3>
+                                <p class="mb-3 text-gray-600 dark:text-gray-300">
+                                    There are several ways to register middleware in your application. You can apply middleware globally to all routes, to specific routes, or to routes under a specific path prefix.
+                                </p>
+                                
+                                <div data-tab-group="middleware-styles" class="mb-6">
+                                    <div class="flex border-b border-gray-200 dark:border-gray-700 mb-4">
+                                        <div class="code-tab px-4 py-2 font-medium" onclick="switchTab('middleware-styles', 0)">
+                                            Decorator Syntax
+                                        </div>
+                                        <div class="code-tab px-4 py-2 font-medium" onclick="switchTab('middleware-styles', 1)">
+                                            Express-like Syntax
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="code-content bg-white dark:bg-gray-700 p-6 rounded-lg">
+                                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                                            <i class="fas fa-info-circle mr-1"></i> 
+                                            Decorator syntax provides a cleaner way to apply middleware with the <code>@app.use</code> decorator or through route parameters.
+                                        </p>
+                                        <div class="code-block">
+                                            <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">from expressify import expressify
+
+app = expressify()
+
+# Global middleware using decorator
+@app.use
+def logger_middleware(req, res, next):
+    print(f"{req.method} {req.path}")
+    next()
+
+# Authentication middleware for protected routes
+def auth_middleware(req, res, next):
+    if not req.headers.get('Authorization'):
+        return res.status(401).send('Unauthorized')
+    next()
+
+# Regular route - no middleware
+@app.get('/')
+def home(req, res):
+    res.send('Home page')
+
+# Route with middleware param
+@app.get('/admin', middleware=[auth_middleware])
+def admin(req, res):
+    res.send('Admin dashboard')
+
+# Multiple middleware functions
+@app.get('/profile', middleware=[auth_middleware, logger_middleware])
+def profile(req, res):
+    res.send('User profile')
+
+if __name__ == '__main__':
+    app.listen(port=3000, hostname="127.0.0.1")</code></pre>
+                                            <button class="copy-button" onclick="copyCode(this)">
+                                                <i class="fas fa-copy"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="code-content hidden bg-white dark:bg-gray-700 p-6 rounded-lg">
+                                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                                            <i class="fas fa-info-circle mr-1"></i> 
+                                            Express-like syntax will feel more familiar to Express.js developers, using <code>app.use()</code> for registering middleware.
+                                        </p>
+                                        <div class="code-block">
+                                            <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">from expressify import expressify
+
+app = expressify()
+
+# Middleware definitions
+def logger_middleware(req, res, next):
+    print(f"{req.method} {req.path}")
+    next()
+
+def auth_middleware(req, res, next):
+    if not req.headers.get('Authorization'):
+        return res.status(401).send('Unauthorized')
+    next()
+
+# Apply middleware globally
+app.use(logger_middleware)
+
+# Path-specific middleware
+app.use('/admin', auth_middleware)
+
+# Route handlers
+def home(req, res):
+    res.send('Home page')
+
+def admin_dashboard(req, res):
+    res.send('Admin dashboard')
+
+def user_profile(req, res):
+    res.send('User profile')
+
+# Register routes
+app.get('/', home)
+app.get('/admin', admin_dashboard)
+
+# Route with inline middleware
+app.get('/profile', user_profile, middleware=[auth_middleware])
+
+if __name__ == '__main__':
+    app.listen(port=3000, hostname="127.0.0.1")</code></pre>
+                                            <button class="copy-button" onclick="copyCode(this)">
+                                                <i class="fas fa-copy"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+                                <h3 class="text-xl font-bold mb-4">Middleware Examples</h3>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                    <div class="bg-gray-50 dark:bg-gray-700/50 p-5 rounded-lg">
+                                        <h4 class="text-lg font-semibold text-blue-700 dark:text-blue-400 mb-3">Authentication Middleware</h4>
+                                        <div class="code-block">
+                                            <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">def auth_middleware(req, res, next):
+    """Check for API key on protected routes"""
+    if req.path.startswith('/protected'):
+        api_key = req.get_header('x-api-key')
+        
+        if not api_key:
+            return res.status(401).json({
+                'error': 'Authentication required',
+                'message': 'Missing API key. Please provide X-API-Key header.'
+            })
+        
+        if api_key != 'abc123':
+            return res.status(403).json({
+                'error': 'Access denied',
+                'message': 'Invalid API key'
+            })
+        
+        # If authentication passes, add user info to request
+        req.user = {'id': 123, 'role': 'user'}
+    
+    # Call the next middleware/route handler
+    return next()
+
+# Apply middleware to all routes
+app.use(auth_middleware)
+
+# This route requires API key
+@app.get('/protected/data')
+def protected_data(req, res):
+    # The auth middleware will have already verified the API key
+    return res.json({
+        'message': 'You have accessed protected data',
+        'user': req.user,
+        'timestamp': time.time()
+    })</code></pre>
+                                            <button class="copy-button" onclick="copyCode(this)">
+                                                <i class="fas fa-copy"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-gray-50 dark:bg-gray-700/50 p-5 rounded-lg">
+                                        <h4 class="text-lg font-semibold text-green-700 dark:text-green-400 mb-3">Request Logging</h4>
+                                        <div class="code-block">
+                                            <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">import time
+
+def logger_middleware(req, res, next):
+    # Start time
+    start_time = time.time()
+    
+    # Log request
+    print(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] {req.method} {req.path}")
+    
+    # Store start time on request object
+    req.start_time = start_time
+    
+    # Call next middleware
+    next()
+    
+    # Calculate duration after response
+    duration = time.time() - start_time
+    
+    # Log response
+    print(f"Response: {res.status_code} in {duration:.2f}s")</code></pre>
+                                            <button class="copy-button" onclick="copyCode(this)">
+                                                <i class="fas fa-copy"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-gray-50 dark:bg-gray-700/50 p-5 rounded-lg">
+                                        <h4 class="text-lg font-semibold text-purple-700 dark:text-purple-400 mb-3">CORS Middleware</h4>
+                                        <div class="code-block">
+                                            <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">def cors_middleware(req, res, next):
+    # Allow requests from any origin
+    res.set_header('Access-Control-Allow-Origin', '*')
+    
+    # Allow specific HTTP methods
+    res.set_header('Access-Control-Allow-Methods', 
+                  'GET, POST, PUT, DELETE, OPTIONS')
+    
+    # Allow specific headers
+    res.set_header('Access-Control-Allow-Headers', 
+                  'Content-Type, Authorization')
+    
+    # Handle preflight requests
+    if req.method == 'OPTIONS':
+        return res.status(204).send()
+    
+    next()</code></pre>
+                                            <button class="copy-button" onclick="copyCode(this)">
+                                                <i class="fas fa-copy"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-gray-50 dark:bg-gray-700/50 p-5 rounded-lg">
+                                        <h4 class="text-lg font-semibold text-red-700 dark:text-red-400 mb-3">Error Handling</h4>
+                                        <div class="code-block">
+                                            <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">def error_handler(req, res, next):
+    try:
+        next()
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        
+        # Send appropriate response based on error
+        status_code = getattr(e, 'status_code', 500)
+        message = getattr(e, 'message', str(e))
+        
+        res.status(status_code).json({
+            'error': True,
+            'message': message
+        })</code></pre>
+                                            <button class="copy-button" onclick="copyCode(this)">
+                                                <i class="fas fa-copy"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-6 bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg flex">
+                                    <div class="flex-shrink-0 mr-3 mt-1">
+                                        <i class="fas fa-lightbulb text-yellow-500 text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-yellow-700 dark:text-yellow-300 mb-1">Best Practice</h4>
+                                        <p class="text-gray-600 dark:text-gray-400">
+                                            For error handling middleware, it's recommended to define it as the first middleware in your application. This ensures that any errors thrown in subsequent middleware or route handlers will be caught and handled properly.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+                                <h3 class="text-xl font-bold mb-4">Middleware Order</h3>
+                                <p class="mb-4 text-gray-600 dark:text-gray-300">
+                                    Middleware functions are executed in the order they are defined. This means that the order in which you register middleware is important.
+                                </p>
+                                
+                                <div class="code-block">
+                                    <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">from expressify import expressify
+
+app = expressify()
+
+# Register middleware in specific order
+@app.use
+def middleware1(req, res, next):
+    print("Middleware 1 - Before")
+    next()
+    print("Middleware 1 - After")
+
+@app.use
+def middleware2(req, res, next):
+    print("Middleware 2 - Before")
+    next()
+    print("Middleware 2 - After")
+
+@app.get('/')
+def home(req, res):
+    print("Route Handler")
+    res.send('Home')
+
+# Output for a request to '/' would be:
+# Middleware 1 - Before
+# Middleware 2 - Before
+# Route Handler
+# Middleware 2 - After
+# Middleware 1 - After</code></pre>
+                                    <button class="copy-button" onclick="copyCode(this)">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+                                
+                                <div class="mt-6 flex gap-4">
+                                    <div class="flex-1 bg-white dark:bg-gray-700 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600">
+                                        <h4 class="font-bold text-primary-700 dark:text-primary-400 mb-2">Middleware Execution Flow</h4>
+                                        <div class="text-center py-4">
+                                            <div class="inline-block p-4 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
+                                                <div class="text-center mb-2 font-bold">Request</div>
+                                                <div class="flex items-center justify-center">
+                                                    <div class="h-0.5 w-10 bg-gray-400"></div>
+                                                    <div class="mx-2">↓</div>
+                                                    <div class="h-0.5 w-10 bg-gray-400"></div>
+                                                </div>
+                                                <div class="grid grid-cols-1 gap-2 mb-2">
+                                                    <div class="p-2 rounded bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200">Global Middleware</div>
+                                                    <div class="p-2 rounded bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200">Path-specific Middleware</div>
+                                                    <div class="p-2 rounded bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200">Route-specific Middleware</div>
+                                                    <div class="p-2 rounded bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200">Route Handler</div>
+                                                </div>
+                                                <div class="flex items-center justify-center">
+                                                    <div class="h-0.5 w-10 bg-gray-400"></div>
+                                                    <div class="mx-2">↓</div>
+                                                    <div class="h-0.5 w-10 bg-gray-400"></div>
+                                                </div>
+                                                <div class="text-center mt-2 font-bold">Response</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Templates -->
+                    <section id="templates" class="mb-12">
+                        <h2 class="text-2xl font-bold mb-6 pb-2 border-b border-gray-200 dark:border-gray-700 flex items-center">
+                            <div class="w-10 h-10 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center mr-3">
+                                <i class="fas fa-file-code text-yellow-600 dark:text-yellow-400"></i>
+                            </div>
+                            Template Rendering
+                        </h2>
+                        
+                        <div class="space-y-8">
+                            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+                                <h3 class="text-xl font-bold mb-3">Template Basics</h3>
+                                <p class="mb-3 text-gray-600 dark:text-gray-300">
+                                    Expressify uses Jinja2 as its template engine. Jinja2 is a powerful templating engine for Python.
+                                </p>
+                                
+                                <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-4">
+                                    <h4 class="font-bold mb-2">Setting Up Templates:</h4>
+                                    <p class="text-gray-600 dark:text-gray-300 mb-2">
+                                        Templates are stored in a directory called <code>views</code>. You can set this directory using the <code>views</code> setting in your application.
+                                    </p>
+                                    <div class="code-block">
+                                        <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">from expressify import expressify
+import os
+
+app = expressify()
+
+# Set the template engine to Jinja2
+app.set('view engine', 'jinja2')
+
+# Set the templates directory
+app.set('views', os.path.join(os.path.dirname(__file__), 'views'))</code></pre>
+                                        <button class="copy-button" onclick="copyCode(this)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-4">
+                                    <h4 class="font-bold mb-2">Rendering Templates:</h4>
+                                    <p class="text-gray-600 dark:text-gray-300 mb-2">
+                                        Use the <code>res.render()</code> method to render templates.
+                                    </p>
+                                    <div class="code-block">
+                                        <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">@app.get('/')
+def home(req, res):
+    res.render('index.html')</code></pre>
+                                        <button class="copy-button" onclick="copyCode(this)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-4">
+                                    <h4 class="font-bold mb-2">Template Variables:</h4>
+                                    <p class="text-gray-600 dark:text-gray-300 mb-2">
+                                        You can pass variables to templates using the <code>res.render()</code> method.
+                                    </p>
+                                    <div class="code-block">
+                                        <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python"># Method 1: Pass data as a dictionary
+@app.get('/example1')
+def example1(req, res):
+    res.render('index.html', {
+        'title': 'Home',
+        'message': 'Welcome to Expressify',
+        'items': ['Item 1', 'Item 2', 'Item 3']
+    })
+
+# Method 2: Express.js style - store data in a variable first
+@app.get('/example2')
+def example2(req, res):
+    # Data to pass to the view
+    data = {
+        'title': 'Hello, World!',
+        'message': 'Welcome to my Expressify app!',
+        'user': {
+            'name': 'John Doe',
+            'age': 30
+        }
+    }
+    
+    # Render the view and pass the data
+    res.render('index.html', data)</code></pre>
+                                        <button class="copy-button" onclick="copyCode(this)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-4">
+                                    <h4 class="font-bold mb-2">Template Inheritance:</h4>
+                                    <p class="text-gray-600 dark:text-gray-300 mb-2">
+                                        Jinja2 supports template inheritance, allowing you to create a base template that other templates can extend.
+                                    </p>
+                                    <div class="code-block">
+                                        <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">{% extends "base.html" %}
+
+{% block content %}
+<h1>Welcome to Expressify</h1>
+{% endblock %}</code></pre>
+                                        <button class="copy-button" onclick="copyCode(this)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+                                <h3 class="text-xl font-bold mb-3">Template Filters:</h3>
+                                <p class="mb-3 text-gray-600 dark:text-gray-300">
+                                    Jinja2 provides several built-in filters that you can use in your templates.
+                                </p>
+                                
+                                <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-4">
+                                    <h4 class="font-bold mb-2">Built-in Filters:</h4>
+                                    <ul class="list-disc list-inside text-gray-600 dark:text-gray-300 space-y-2">
+                                        <li>safe: Marks the value as safe for HTML output</li>
+                                        <li>capitalize: Capitalizes the first letter of the value</li>
+                                        <li>lower: Converts the value to lowercase</li>
+                                        <li>upper: Converts the value to uppercase</li>
+                                        <li>title: Capitalizes the first letter of each word</li>
+                                        <li>striptags: Strips HTML tags from the value</li>
+                                        <li>escape: Escapes HTML characters in the value</li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-4">
+                                    <h4 class="font-bold mb-2">Custom Filters:</h4>
+                                    <p class="text-gray-600 dark:text-gray-300 mb-2">
+                                        You can also define your own filters in Python.
+                                    </p>
+                                    <div class="code-block">
+                                        <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">from jinja2 import Environment, FileSystemLoader
+
+env = Environment(loader=FileSystemLoader('templates'))
+
+def format_date(date):
+    return date.strftime('%Y-%m-%d')
+
+env.filters['format_date'] = format_date</code></pre>
+                                        <button class="copy-button" onclick="copyCode(this)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Static Files -->
+                    <section id="static-files" class="mb-12">
+                        <h2 class="text-2xl font-bold mb-6 pb-2 border-b border-gray-200 dark:border-gray-700 flex items-center">
+                            <div class="w-10 h-10 rounded-full bg-pink-100 dark:bg-pink-900/30 flex items-center justify-center mr-3">
+                                <i class="fas fa-file text-pink-600 dark:text-pink-400"></i>
+                            </div>
+                            Static Files
+                        </h2>
+                        
+                        <div class="space-y-8">
+                            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+                                <h3 class="text-xl font-bold mb-3">Setting Up Static Files:</h3>
+                                <p class="mb-3 text-gray-600 dark:text-gray-300">
+                                    Expressify provides a built-in middleware for serving static files such as CSS, JavaScript, and images.
+                                </p>
+                                
+                                <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-4">
+                                    <h4 class="font-bold mb-2">Serving Static Files:</h4>
+                                    <p class="text-gray-600 dark:text-gray-300 mb-2">
+                                        There are two main approaches to serving static files:
+                                    </p>
+                                    <div class="code-block">
+                                        <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">from expressify import expressify
+from expressify.lib.middleware import Middleware
+import os
+
+app = expressify()
+
+# Method 1: Serve files from the 'public' directory at the root URL path
+public_dir = os.path.join(os.path.dirname(__file__), 'public')
+app.use(Middleware.static(public_dir))
+
+# Method 2: Serve files from a directory at a specific URL path
+# This mounts the 'public/assets' directory at the '/assets' URL path
+assets_dir = os.path.join(os.path.dirname(__file__), 'public', 'assets')
+app.use('/assets', Middleware.static(assets_dir))</code></pre>
+                                        <button class="copy-button" onclick="copyCode(this)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-4">
+                                    <h4 class="font-bold mb-2">Serving Specific Files:</h4>
+                                    <p class="text-gray-600 dark:text-gray-300 mb-2">
+                                        You can also serve specific files directly.
+                                    </p>
+                                    <div class="code-block">
+                                        <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">from expressify.lib.middleware import Middleware
+import os
+
+favicon_path = os.path.join(os.path.dirname(__file__), 'public', 'favicon.ico')
+app.get('/favicon.ico', lambda req, res: res.sendFile(favicon_path))</code></pre>
+                                        <button class="copy-button" onclick="copyCode(this)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+                                <h3 class="text-xl font-bold mb-3">Using Static Files in Templates:</h3>
+                                <p class="mb-3 text-gray-600 dark:text-gray-300">
+                                    You can use static files in your templates by directly referencing their paths:
+                                </p>
+                                
+                                <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-4">
+                                    <h4 class="font-bold mb-2">Example:</h4>
+                                    <div class="code-block">
+                                        <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-html"><!-- In your template file -->
+
+<!-- CSS from root path -->
+<link rel="stylesheet" href="/css/styles.css">
+
+<!-- Image from root path -->
+<img src="/images/logo.png" alt="Logo">
+
+<!-- Asset from mounted path -->
+<img src="/assets/icons/icon.svg" alt="Icon" width="50">
+
+<!-- JavaScript from root path -->
+<script src="/js/script.js"></script></code></pre>
+                                        <button class="copy-button" onclick="copyCode(this)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Error Handling -->
+                    <section id="error-handling" class="mb-12">
+                        <h2 class="text-2xl font-bold mb-6 pb-2 border-b border-gray-200 dark:border-gray-700 flex items-center">
+                            <div class="w-10 h-10 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center mr-3">
+                                <i class="fas fa-exclamation-triangle text-orange-600 dark:text-orange-400"></i>
+                            </div>
+                            Error Handling
+                        </h2>
+                        
+                        <div class="space-y-8">
+                            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+                                <h3 class="text-xl font-bold mb-3">Error Handling Basics</h3>
+                                <p class="mb-3 text-gray-600 dark:text-gray-300">
+                                    Expressify provides a simple way to handle errors using middleware.
+                                </p>
+                                
+                                <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-4">
+                                    <h4 class="font-bold mb-2">Error Handling Middleware:</h4>
+                                    <p class="text-gray-600 dark:text-gray-300 mb-2">
+                                        You can define error handling middleware to catch exceptions and send a custom response.
+                                    </p>
+                                    <div class="code-block">
+                                        <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">def error_handler(req, res, next):
+    try:
+        next()
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        
+        # Send appropriate response based on error
+        status_code = getattr(e, 'status_code', 500)
+        message = getattr(e, 'message', str(e))
+        
+        res.status(status_code).json({
+            'error': True,
+            'message': message
+        })</code></pre>
+                                        <button class="copy-button" onclick="copyCode(this)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-4">
+                                    <h4 class="font-bold mb-2">Error Pages:</h4>
+                                    <p class="text-gray-600 dark:text-gray-300 mb-2">
+                                        You can also define custom error pages for specific status codes.
+                                    </p>
+                                    <div class="code-block">
+                                        <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">from expressify import expressify
+
+app = expressify()
+
+# Custom 404 handler
+@app.error(404)
+def not_found(req, res):
+    res.render('404.html')
+
+# Custom 500 handler
+@app.error(500)
+def internal_error(req, res):
+    res.render('500.html')</code></pre>
+                                        <button class="copy-button" onclick="copyCode(this)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+                                <h3 class="text-xl font-bold mb-3">Error Handling in Route Handlers:</h3>
+                                <p class="mb-3 text-gray-600 dark:text-gray-300">
+                                    You can use try-except blocks to handle errors in route handlers.
+                                </p>
+                                
+                                <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-4">
+                                    <h4 class="font-bold mb-2">Example:</h4>
+                                    <div class="code-block">
+                                        <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">@app.get('/')
+def home(req, res):
+    try:
+        # Route handler logic
+        res.render('index.html')
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        
+        # Send appropriate response based on error
+        status_code = getattr(e, 'status_code', 500)
+        message = getattr(e, 'message', str(e))
+        
+        res.status(status_code).json({
+            'error': True,
+            'message': message
+        })</code></pre>
+                                        <button class="copy-button" onclick="copyCode(this)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Utilities -->
+                    <section id="utilities" class="mb-12">
+                        <h2 class="text-2xl font-bold mb-6 pb-2 border-b border-gray-200 dark:border-gray-700 flex items-center">
+                            <div class="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center mr-3">
+                                <i class="fas fa-tools text-indigo-600 dark:text-indigo-400"></i>
+                            </div>
+                            Utilities
+                        </h2>
+                        
+                        <div class="space-y-8">
+                            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+                                <h3 class="text-xl font-bold mb-3">Common Utilities</h3>
+                                <p class="mb-3 text-gray-600 dark:text-gray-300">
+                                    Expressify provides several utilities to help with common tasks.
+                                </p>
+                                
+                                <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-4">
+                                    <h4 class="font-bold mb-2">app.locals:</h4>
+                                    <p class="text-gray-600 dark:text-gray-300 mb-2">
+                                        app.locals is an object that persists throughout the lifetime of the application. You can use it to store app-level data.
+                                    </p>
+                                    <div class="code-block">
+                                        <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">app.locals.title = 'My Application'
+app.locals.version = '1.0.0'</code></pre>
+                                        <button class="copy-button" onclick="copyCode(this)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-4">
+                                    <h4 class="font-bold mb-2">app.set(name, value):</h4>
+                                    <p class="text-gray-600 dark:text-gray-300 mb-2">
+                                        app.set is used to set application-level settings like the template engine or the static files directory.
+                                    </p>
+                                    <div class="code-block">
+                                        <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">app.set('view engine', 'jinja2')
+app.set('views', './views')
+app.set('static_folder', 'static')</code></pre>
+                                        <button class="copy-button" onclick="copyCode(this)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+                                <h3 class="text-xl font-bold mb-3">Request Object Methods:</h3>
+                                <p class="mb-3 text-gray-600 dark:text-gray-300">
+                                    The request object provides several methods to access information about the request.
+                                </p>
+                                
+                                <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-4">
+                                    <h4 class="font-bold mb-2">req.method:</h4>
+                                    <p class="text-gray-600 dark:text-gray-300 mb-2">
+                                        Returns the HTTP method of the request.
+                                    </p>
+                                    <div class="code-block">
+                                        <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">@app.get('/')
+def home(req, res):
+    res.send(f"Method: {req.method}")</code></pre>
+                                        <button class="copy-button" onclick="copyCode(this)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-4">
+                                    <h4 class="font-bold mb-2">req.url:</h4>
+                                    <p class="text-gray-600 dark:text-gray-300 mb-2">
+                                        Returns the full URL of the request.
+                                    </p>
+                                    <div class="code-block">
+                                        <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">@app.get('/')
+def home(req, res):
+    res.send(f"URL: {req.url}")</code></pre>
+                                        <button class="copy-button" onclick="copyCode(this)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-4">
+                                    <h4 class="font-bold mb-2">req.headers:</h4>
+                                    <p class="text-gray-600 dark:text-gray-300 mb-2">
+                                        Returns a dictionary of request headers.
+                                    </p>
+                                    <div class="code-block">
+                                        <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">@app.get('/')
+def home(req, res):
+    res.send(f"Headers: {req.headers}")</code></pre>
+                                        <button class="copy-button" onclick="copyCode(this)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-4">
+                                    <h4 class="font-bold mb-2">req.query:</h4>
+                                    <p class="text-gray-600 dark:text-gray-300 mb-2">
+                                        Returns a dictionary of query parameters.
+                                    </p>
+                                    <div class="code-block">
+                                        <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">@app.get('/search')
+def search(req, res):
+    query = req.query.get('q')
+    res.send(f'Searching for: {query}')</code></pre>
+                                        <button class="copy-button" onclick="copyCode(this)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-4">
+                                    <h4 class="font-bold mb-2">req.params:</h4>
+                                    <p class="text-gray-600 dark:text-gray-300 mb-2">
+                                        Returns a dictionary of route parameters.
+                                    </p>
+                                    <div class="code-block">
+                                        <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">@app.get('/users/:id')
+def get_user(req, res):
+    user_id = req.params.get('id')
+    res.send(f'User ID: {user_id}')</code></pre>
+                                        <button class="copy-button" onclick="copyCode(this)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-4">
+                                    <h4 class="font-bold mb-2">req.body:</h4>
+                                    <p class="text-gray-600 dark:text-gray-300 mb-2">
+                                        Contains the parsed request body.
+                                    </p>
+                                    <div class="code-block">
+                                        <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">@app.post('/users')
+def create_user(req, res):
+    user_data = req.body
+    # Process user data...
+    res.status(201).json({'message': 'User created', 'user': user_data})</code></pre>
+                                        <button class="copy-button" onclick="copyCode(this)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+                                <h3 class="text-xl font-bold mb-3">Response Object Methods:</h3>
+                                <p class="mb-3 text-gray-600 dark:text-gray-300">
+                                    The response object provides several methods to send data back to the client.
+                                </p>
+                                
+                                <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-4">
+                                    <h4 class="font-bold mb-2">res.status(code):</h4>
+                                    <p class="text-gray-600 dark:text-gray-300 mb-2">
+                                        Sets the HTTP status code for the response.
+                                    </p>
+                                    <div class="code-block">
+                                        <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">@app.get('/')
+def home(req, res):
+    res.status(200).send('OK')</code></pre>
+                                        <button class="copy-button" onclick="copyCode(this)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-4">
+                                    <h4 class="font-bold mb-2">res.set_header('Header-Name', 'Value'):</h4>
+                                    <p class="text-gray-600 dark:text-gray-300 mb-2">
+                                        Sets a custom header for the response.
+                                    </p>
+                                    <div class="code-block">
+                                        <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">@app.get('/')
+def home(req, res):
+    res.set_header('X-Custom-Header', 'Value')
+    res.send('OK')</code></pre>
+                                        <button class="copy-button" onclick="copyCode(this)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-4">
+                                    <h4 class="font-bold mb-2">res.type(content_type):</h4>
+                                    <p class="text-gray-600 dark:text-gray-300 mb-2">
+                                        Sets the Content-Type HTTP header for the response.
+                                    </p>
+                                    <div class="code-block">
+                                        <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python"># Setting different content types
+@app.get('/text')
+def text(req, res):
+    res.type('text/plain').send('Plain text content')
+
+@app.get('/html')
+def html(req, res):
+    res.type('text/html').send('<html><body><h1>HTML Content</h1></body></html>')
+
+@app.get('/xml')
+def xml(req, res):
+    res.type('application/xml').send('<root><message>XML Content</message></root>')
+
+@app.get('/css')
+def css(req, res):
+    res.type('text/css').send('body { color: blue; }')</code></pre>
+                                        <button class="copy-button" onclick="copyCode(this)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-4">
+                                    <h4 class="font-bold mb-2">res.send(data):</h4>
+                                    <p class="text-gray-600 dark:text-gray-300 mb-2">
+                                        Sends various types of data back to the client.
+                                    </p>
+                                    <div class="code-block">
+                                        <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">@app.get('/')
+def home(req, res):
+    res.send('Hello, World!')</code></pre>
+                                        <button class="copy-button" onclick="copyCode(this)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-4">
+                                    <h4 class="font-bold mb-2">res.json(obj):</h4>
+                                    <p class="text-gray-600 dark:text-gray-300 mb-2">
+                                        Sends JSON data back to the client.
+                                    </p>
+                                    <div class="code-block">
+                                        <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">@app.get('/api/data')
+def get_data(req, res):
+    res.json({
+        'name': 'Example',
+        'items': [1, 2, 3]
+    })</code></pre>
+                                        <button class="copy-button" onclick="copyCode(this)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-4">
+                                    <h4 class="font-bold mb-2">res.redirect(path):</h4>
+                                    <p class="text-gray-600 dark:text-gray-300 mb-2">
+                                        Redirects the request to a different path.
+                                    </p>
+                                    <div class="code-block">
+                                        <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">@app.get('/old-page')
+def old_page(req, res):
+    # Temporary redirect (302)
+    res.redirect('/new-page')</code></pre>
+                                        <button class="copy-button" onclick="copyCode(this)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12 mt-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Expressify</h3>
+                    <p class="text-gray-400">A lightweight Express.js-inspired web framework for Python</p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-bold mb-4">Documentation</h4>
+                    <ul class="space-y-2">
+                        <li><a href="getting-started.html" class="text-gray-400 hover:text-white transition-colors">Getting Started</a></li>
+                        <li><a href="examples.html" class="text-gray-400 hover:text-white transition-colors">Examples</a></li>
+                        <li><a href="api-reference.html" class="text-gray-400 hover:text-white transition-colors">API Reference</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-bold mb-4">Resources</h4>
+                    <ul class="space-y-2">
+                        <li><a href="https://github.com/itsdhruvrawat/expressify" class="text-gray-400 hover:text-white transition-colors">GitHub</a></li>
+                        <li><a href="https://pypi.org/user/dhruvrawat/" class="text-gray-400 hover:text-white transition-colors">PyPI</a></li>
+                        <li><a href="about.html" class="text-gray-400 hover:text-white transition-colors">About</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-bold mb-4">Author</h4>
+                    <p class="text-gray-400 mb-2">Dhruv Rawat</p>
+                    <div class="flex space-x-4">
+                        <a href="https://github.com/itsdhruvrawat" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-github text-xl"></i>
+                        </a>
+                        <a href="mailto:dhruvrwt12@gmail.com" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fas fa-envelope text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2024 Expressify. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript for functionality -->
+    <script>
+        // Copy to clipboard functionality
+        function copyCode(button) {
+            const codeBlock = button.closest('.code-block');
+            const code = codeBlock.querySelector('code').textContent;
+            
+            navigator.clipboard.writeText(code).then(() => {
+                // Visual feedback
+                button.classList.add('copied');
+                button.innerHTML = '<i class="fas fa-check"></i>';
+                
+                setTimeout(() => {
+                    button.classList.remove('copied');
+                    button.innerHTML = '<i class="fas fa-copy"></i>';
+                }, 2000);
+            });
+        }
+        
+        // Mobile menu toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile menu toggle
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const menu = document.getElementById('menu');
+            
+            if (mobileMenuButton && menu) {
+                mobileMenuButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    console.log('Mobile menu button clicked');
+                    menu.classList.toggle('hidden');
+                    
+                    // Animate the menu items
+                    const menuItems = menu.querySelectorAll('li');
+                    if (!menu.classList.contains('hidden')) {
+                        menuItems.forEach((item, index) => {
+                            item.style.opacity = '0';
+                            item.style.transform = 'translateY(-10px)';
+                            item.style.transition = `opacity 0.3s ease, transform 0.3s ease`;
+                            
+                            setTimeout(() => {
+                                item.style.opacity = '1';
+                                item.style.transform = 'translateY(0)';
+                            }, 100 + (index * 50));
+                        });
+                    }
+                });
+            }
+            
+            // Theme toggle functionality
+            function setTheme(isDark) {
+                if (isDark) {
+                    document.documentElement.classList.add('dark');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    localStorage.setItem('theme', 'light');
+                }
+            }
+
+            // Check for saved theme preference or prefer-color-scheme
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const savedTheme = localStorage.getItem('theme');
+            
+            // Set theme based on preference
+            if (savedTheme === 'dark' || (savedTheme === null && prefersDark)) {
+                setTheme(true);
+            } else {
+                setTheme(false);
+            }
+
+            // Theme toggle buttons
+            const themeToggle = document.getElementById('theme-toggle');
+            const themeToggleMobile = document.getElementById('theme-toggle-mobile');
+            
+            if (themeToggle) {
+                themeToggle.addEventListener('click', () => {
+                    const isDark = document.documentElement.classList.contains('dark');
+                    setTheme(!isDark);
+                });
+            }
+            
+            if (themeToggleMobile) {
+                themeToggleMobile.addEventListener('click', () => {
+                    const isDark = document.documentElement.classList.contains('dark');
+                    setTheme(!isDark);
+                });
+            }
+            
+            // Smooth scroll for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    
+                    if (targetElement) {
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 100,
+                            behavior: 'smooth'
+                        });
+                        
+                        // Update URL without page jump
+                        history.pushState(null, null, targetId);
+                        
+                        // Highlight active section in sidebar
+                        document.querySelectorAll('.sidebar a').forEach(link => {
+                            link.classList.remove('bg-primary-50', 'dark:bg-gray-700');
+                        });
+                        this.classList.add('bg-primary-50', 'dark:bg-gray-700');
+                    }
+                });
+            });
+            
+            // Animate sections as they come into view
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('fade-in');
+                        observer.unobserve(entry.target);
+                        
+                        // Highlight active section in sidebar
+                        const id = entry.target.getAttribute('id');
+                        if (id) {
+                            document.querySelectorAll('.sidebar a').forEach(link => {
+                                link.classList.remove('bg-primary-50', 'dark:bg-gray-700');
+                            });
+                            const activeLink = document.querySelector(`.sidebar a[href="#${id}"]`);
+                            if (activeLink) {
+                                activeLink.classList.add('bg-primary-50', 'dark:bg-gray-700');
+                            }
+                        }
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            document.querySelectorAll('section').forEach(section => {
+                observer.observe(section);
+            });
+        });
+    </script>
+</body>
+</html> 

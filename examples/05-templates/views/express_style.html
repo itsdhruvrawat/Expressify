@@ -1,0 +1,52 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="card">
+        <div class="card-header">
+            <h1>{{ title }}</h1>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-info">
+                <p>{{ message }}</p>
+            </div>
+            
+            <h2>User Information</h2>
+            <div class="card mb-4">
+                <div class="card-body">
+                    <p><strong>Name:</strong> {{ user.name }}</p>
+                    <p><strong>Age:</strong> {{ user.age }}</p>
+                </div>
+            </div>
+            
+            <h2>Items</h2>
+            <ul class="list-group">
+                {% for item in items %}
+                <li class="list-group-item">{{ item }}</li>
+                {% endfor %}
+            </ul>
+            
+            <div class="mt-4">
+                <p>This example demonstrates passing data to templates in the Express.js style:</p>
+                <pre class="bg-light p-3 rounded">
+@app.get('/', (req, res) => {
+  const data = {
+    title: 'Hello, World!',
+    message: 'Welcome to my Express app!',
+    user: {
+      name: 'John Doe',
+      age: 30
+    }
+  };
+
+  res.render('index', data);
+});
+                </pre>
+            </div>
+        </div>
+        <div class="card-footer">
+            <a href="/" class="btn btn-primary">Back to Home</a>
+        </div>
+    </div>
+</div>
+{% endblock %} 

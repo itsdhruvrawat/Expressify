@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Examples - Expressify</title>
+    <script src="https://cdn.tailwindcss.com/3.4.0"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        },
+                    }
+                },
+                plugins: [
+                    function({ addComponents, theme }) {
+                        addComponents({
+                            '.code-tab': {
+                                paddingLeft: '1rem',
+                                paddingRight: '1rem',
+                                paddingTop: '0.5rem',
+                                paddingBottom: '0.5rem',
+                                fontFamily: 'monospace',
+                                fontSize: '0.875rem',
+                                cursor: 'pointer'
+                            },
+                            '.code-tab.active': {
+                                backgroundColor: theme('colors.gray.800'),
+                                color: theme('colors.white')
+                            },
+                            '.code-panel': {
+                                display: 'none'
+                            },
+                            '.code-panel.active': {
+                                display: 'block'
+                            },
+                            '.text-gradient': {
+                                backgroundClip: 'text',
+                                WebkitBackgroundClip: 'text',
+                                color: 'transparent',
+                                backgroundImage: 'linear-gradient(to right, #0ea5e9, #6366f1)'
+                            }
+                        })
+                    }
+                ]
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .transition-all {
+                transition-property: all;
+                transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+                transition-duration: 150ms;
+            }
+            .animate-float {
+                animation: float 3s ease-in-out infinite;
+            }
+            @keyframes float {
+                0% { transform: translateY(0px); }
+                50% { transform: translateY(-10px); }
+                100% { transform: translateY(0px); }
+            }
+            .code-tab {
+                position: relative;
+                cursor: pointer;
+                user-select: none;
+            }
+            .code-tab.active::after {
+                content: '';
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                height: 2px;
+                background: linear-gradient(90deg, #0ea5e9, #6366f1);
+            }
+            .code-block {
+                position: relative;
+                transition: transform 0.2s, box-shadow 0.2s;
+                overflow: hidden;
+            }
+            .code-block:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            }
+            .copy-button {
+                position: absolute;
+                top: 8px;
+                right: 8px;
+                padding: 4px 8px;
+                border-radius: 4px;
+                background-color: rgba(255, 255, 255, 0.1);
+                color: #e5e7eb;
+                opacity: 0;
+                transition: opacity 0.2s;
+                font-size: 0.75rem;
+            }
+            .code-block:hover .copy-button {
+                opacity: 1;
+            }
+            .animate-fade-in {
+                animation: fadeIn 0.6s ease-out forwards;
+            }
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(20px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            .card-hover {
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+            }
+            .card-hover:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            }
+            .gradient-border {
+                position: relative;
+                border-radius: 0.75rem;
+                z-index: 0;
+            }
+            .gradient-border::before {
+                content: '';
+                position: absolute;
+                inset: -2px;
+                z-index: -1;
+                border-radius: 0.85rem;
+                background: linear-gradient(135deg, #0ea5e9, #6366f1, #0284c7);
+                background-size: 200% 200%;
+                animation: border-glow 3s linear infinite;
+                mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+                mask-composite: exclude;
+                -webkit-mask-composite: xor;
+            }
+            @keyframes border-glow {
+                0% { background-position: 0% 50%; }
+                50% { background-position: 100% 50%; }
+                100% { background-position: 0% 50%; }
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+    <!-- Header -->
+    <header class="bg-primary-700 text-white">
+        <div class="container mx-auto px-4 py-6">
+            <nav class="flex flex-wrap items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <a href="../index.html" class="flex items-center gap-2">
+                        <i class="fas fa-bolt text-2xl"></i>
+                        <span class="text-2xl font-bold">Expressify</span>
+                    </a>
+                </div>
+                <div class="md:hidden flex items-center gap-4">
+                    <button id="theme-toggle-mobile" class="p-2 rounded bg-primary-600 dark:bg-gray-700 text-white hover:bg-primary-700 dark:hover:bg-gray-600 transition-colors">
+                        <i class="fas fa-moon dark:hidden"></i>
+                        <i class="fas fa-sun hidden dark:inline"></i>
+                    </button>
+                    <button id="mobile-menu-button" class="p-2 rounded hover:bg-primary-600">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+                <div id="menu" class="hidden md:flex w-full md:w-auto mt-4 md:mt-0 absolute md:relative left-0 right-0 top-16 md:top-auto bg-gray-900 md:bg-transparent z-50 px-4 py-2 md:p-0 shadow-lg md:shadow-none">
+                    <ul class="flex flex-col md:flex-row md:gap-6">
+                        <li><a href="../index.html" class="block py-2 px-4 font-medium hover:text-primary-300">Home</a></li>
+                        <li><a href="getting-started.html" class="block py-2 px-4 font-medium hover:text-primary-300">Getting Started</a></li>
+                        <li><a href="examples.html" class="block py-2 px-4 font-medium text-primary-300">Examples</a></li>
+                        <li><a href="api-reference.html" class="block py-2 px-4 font-medium hover:text-primary-300">API Reference</a></li>
+                        <li><a href="about.html" class="block py-2 px-4 font-medium hover:text-primary-300">About</a></li>
+                    </ul>
+                </div>
+                <div class="hidden md:flex items-center gap-3">
+                    <a href="https://discord.gg/expressify" class="inline-flex items-center gap-1 py-2 px-4 rounded bg-indigo-600 text-white hover:bg-indigo-700 font-medium transition-colors">
+                        <i class="fab fa-discord"></i> Join Discord
+                    </a>
+                    <a href="https://github.com/itsdhruvrawat/expressify" class="inline-flex items-center gap-1 py-2 px-4 rounded bg-white text-primary-700 dark:bg-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 font-medium transition-colors">
+                        <i class="fab fa-github"></i> GitHub
+                    </a>
+                    <button id="theme-toggle" class="p-2 rounded bg-primary-600 dark:bg-gray-700 text-white hover:bg-primary-700 dark:hover:bg-gray-600 transition-colors">
+                        <i class="fas fa-moon dark:hidden"></i>
+                        <i class="fas fa-sun hidden dark:inline"></i>
+                    </button>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-12">
+        <div class="relative mb-12">
+            <div class="absolute top-0 left-0 w-24 h-24 bg-primary-500/20 rounded-full filter blur-2xl"></div>
+            <div class="absolute bottom-0 right-0 w-32 h-32 bg-blue-500/20 rounded-full filter blur-2xl"></div>
+            <div class="relative">
+                <h1 class="text-4xl sm:text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-blue-600">Expressify Examples</h1>
+                <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl">Learn how to use Expressify with practical, real-world examples that demonstrate the power and flexibility of the framework.</p>
+            </div>
+        </div>
+        
+        <!-- Syntax Comparison Section -->
+        <section class="mb-16">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-8">
+                <h2 class="text-2xl font-bold mb-6 flex items-center">
+                    <div class="w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-code text-purple-600 dark:text-purple-400"></i>
+                    </div>
+                    Coding Styles: Choose Your Preference
+                </h2>
+                
+                <p class="text-gray-600 dark:text-gray-300 mb-6">
+                    Expressify offers flexibility in how you define your routes and applications. Choose the style that best fits your project and preferences.
+                </p>
+                
+                <div class="gradient-border mb-8">
+                    <div class="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg">
+                        <div data-tab-group="syntax-styles" class="mb-4">
+                            <div class="flex border-b border-gray-200 dark:border-gray-700">
+                                <div class="code-tab px-4 py-2 font-medium" onclick="switchTab('syntax-styles', 0)">
+                                    Decorator Syntax
+                                </div>
+                                <div class="code-tab px-4 py-2 font-medium" onclick="switchTab('syntax-styles', 1)">
+                                    Non-Decorator Syntax
+                                </div>
+                            </div>
+                            
+                            <div class="code-content pt-4">
+                                <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                                    <i class="fas fa-info-circle mr-1"></i> 
+                                    Decorator syntax offers a clean, concise way to define routes directly above handler functions.
+                                </p>
+                                
+                                <div class="code-block">
+                                    <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">from expressify import expressify
+
+app = expressify()
+
+@app.get('/')
+def home(req, res):
+    res.send('Hello World!')
+
+@app.get('/users/:id')
+def get_user(req, res):
+    user_id = req.params.get('id')
+    res.send(f'User: {user_id}')
+
+@app.post('/users')
+def create_user(req, res):
+    data = req.body
+    res.status(201).json({'message': 'User created', 'data': data})
+
+if __name__ == '__main__':
+    app.listen(port=3000, hostname='127.0.0.1', callback=lambda: print('Server running on port 3000'))</code></pre>
+                                    <button class="copy-button" onclick="copyCode(this)">
+                                        <i class="fas fa-copy mr-1"></i> Copy
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="code-content pt-4 hidden">
+                                <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                                    <i class="fas fa-info-circle mr-1"></i> 
+                                    Non-decorator syntax lets you define routes separately from handler functions, useful for dynamic route registration.
+                                </p>
+                                
+                                <div class="code-block">
+                                    <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">from expressify import expressify
+
+app = expressify()
+
+def home(req, res):
+    res.send('Hello World!')
+
+def get_user(req, res):
+    user_id = req.params.get('id')
+    res.send(f'User: {user_id}')
+
+def create_user(req, res):
+    data = req.body
+    res.status(201).json({'message': 'User created', 'data': data})
+
+# Configure routes
+app.get('/', home)
+app.get('/users/:id', get_user)
+app.post('/users', create_user)
+
+if __name__ == '__main__':
+    app.listen(port=3000, hostname='127.0.0.1', callback=lambda: print('Server running on port 3000'))</code></pre>
+                                    <button class="copy-button" onclick="copyCode(this)">
+                                        <i class="fas fa-copy mr-1"></i> Copy
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg mt-6">
+                            <h3 class="font-semibold flex items-center text-yellow-800 dark:text-yellow-300 mb-2">
+                                <i class="fas fa-lightbulb mr-2"></i>
+                                Benefits of Both Approaches
+                            </h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                <div>
+                                    <h4 class="font-medium mb-1 text-primary-700 dark:text-primary-400">Decorator Syntax</h4>
+                                    <ul class="list-disc list-inside space-y-1 text-gray-600 dark:text-gray-400">
+                                        <li>Clean and concise code organization</li>
+                                        <li>Routes and handlers visually paired</li>
+                                        <li>Similar to Flask and FastAPI style</li>
+                                        <li>Great for quickly defining routes</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium mb-1 text-primary-700 dark:text-primary-400">Non-Decorator Syntax</h4>
+                                    <ul class="list-disc list-inside space-y-1 text-gray-600 dark:text-gray-400">
+                                        <li>Easy dynamic route registration</li>
+                                        <li>Better for configuration-driven setup</li>
+                                        <li>More similar to Express.js style</li>
+                                        <li>Cleaner separation of definitions</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Advanced Example: Dynamic Route Registration -->
+                <h3 class="text-xl font-bold mb-4">Advanced Example: Dynamic Route Registration</h3>
+                <p class="text-gray-600 dark:text-gray-300 mb-4">
+                    The non-decorator syntax is particularly useful for dynamic route registration, such as loading routes from a configuration file:
+                </p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div class="bg-white dark:bg-gray-700 rounded-lg shadow p-4">
+                        <h4 class="font-semibold mb-2 text-primary-700 dark:text-primary-400">routes_config.json</h4>
+                        <div class="code-block">
+                            <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-json">{
+  "routes": [
+    {
+      "path": "/api/products",
+      "method": "get",
+      "handler": "get_products"
+    },
+    {
+      "path": "/api/products/:id",
+      "method": "get",
+      "handler": "get_product_by_id"
+    },
+    {
+      "path": "/api/products",
+      "method": "post",
+      "handler": "create_product"
+    }
+  ]
+}</code></pre>
+                            <button class="copy-button" onclick="copyCode(this)">
+                                <i class="fas fa-copy mr-1"></i> Copy
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white dark:bg-gray-700 rounded-lg shadow p-4">
+                        <h4 class="font-semibold mb-2 text-primary-700 dark:text-primary-400">app.py</h4>
+                        <div class="code-block">
+                            <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">import json
+from expressify import expressify
+
+app = expressify()
+
+# Handler functions
+def get_products(req, res):
+    res.json([{"id": 1, "name": "Product 1"}, {"id": 2, "name": "Product 2"}])
+
+def get_product_by_id(req, res):
+    product_id = req.params.get('id')
+    res.json({"id": product_id, "name": f"Product {product_id}"})
+
+def create_product(req, res):
+    res.status(201).json({"message": "Product created"})
+
+# Load routes from config file
+with open('routes_config.json', 'r') as f:
+    config = json.load(f)
+
+# Register routes dynamically
+for route in config['routes']:
+    handler = globals()[route['handler']]
+    method = route['method'].lower()
+    
+    # Use getattr to dynamically call the appropriate method
+    getattr(app, method)(route['path'], handler)
+
+if __name__ == '__main__':
+    app.listen(port=3000, hostname='127.0.0.1', callback=lambda: print('Server running on port 3000'))</code></pre>
+                            <button class="copy-button" onclick="copyCode(this)">
+                                <i class="fas fa-copy mr-1"></i> Copy
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Middleware Example -->
+        <section class="mb-16">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-8">
+                <h2 class="text-2xl font-bold mb-6 flex items-center">
+                    <div class="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-layer-group text-green-600 dark:text-green-400"></i>
+                    </div>
+                    Middleware Usage
+                </h2>
+                
+                <p class="text-gray-600 dark:text-gray-300 mb-6">
+                    Middleware functions have access to the request and response objects and can perform actions before the final route handler.
+                </p>
+                
+                <div data-tab-group="middleware-styles" class="mb-6">
+                    <div class="flex border-b border-gray-200 dark:border-gray-700 mb-4">
+                        <div class="code-tab px-4 py-2 font-medium" onclick="switchTab('middleware-styles', 0)">
+                            Global Middleware
+                        </div>
+                        <div class="code-tab px-4 py-2 font-medium" onclick="switchTab('middleware-styles', 1)">
+                            Route-Specific Middleware
+                        </div>
+                    </div>
+                    
+                    <div class="code-content">
+                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                            <i class="fas fa-info-circle mr-1"></i> 
+                            Global middleware is applied to all routes in the application.
+                        </p>
+                        
+                        <div class="code-block">
+                            <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">from expressify import Expressify
+import time
+import json
+
+app = Expressify()
+
+# Logger middleware
+def logger_middleware(req, res, next):
+    """Log request information and timing data"""
+    start_time = time.time()
+    
+    print(f"Request: {req.method} {req.path}")
+    
+    # Call the next middleware/route handler
+    result = next()
+    
+    # Calculate and log timing
+    duration = (time.time() - start_time) * 1000  # Convert to ms
+    print(f"Response: {res.status_code} - {duration:.2f}ms")
+    
+    return result
+
+# JSON Parser middleware
+def json_parser_middleware(req, res, next):
+    """Parse JSON request bodies"""
+    if 'application/json' in req.get_header('content-type', ''):
+        try:
+            if req.body:
+                req.json = json.loads(req.body)
+        except json.JSONDecodeError:
+            return res.status(400).json({
+                'error': 'Invalid JSON',
+                'message': 'Failed to parse request body as JSON'
+            })
+    
+    # Call the next middleware/route handler
+    return next()
+
+# Error Handler middleware
+def error_handler_middleware(req, res, next):
+    """Handle errors in the middleware chain"""
+    try:
+        # Call the next middleware/route handler
+        return next()
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        return res.status(500).json({
+            'error': 'Internal Server Error',
+            'message': str(e)
+        })
+
+# Apply middleware to all routes
+app.use(logger_middleware)
+app.use(json_parser_middleware)
+app.use(error_handler_middleware)
+
+@app.get('/')
+def home(req, res):
+    res.send('Hello World!')
+
+@app.post('/api/data')
+def create_data(req, res):
+    # The JSON parser middleware will have already parsed the JSON body
+    if hasattr(req, 'json'):
+        return res.status(201).json({
+            'message': 'Data received successfully',
+            'data': req.json
+        })
+    else:
+        return res.status(400).json({
+            'error': 'No data provided',
+            'message': 'Request body should contain JSON data'
+        })
+
+if __name__ == '__main__':
+    app.listen(port=3000)</code></pre>
+                            <button class="copy-button" onclick="copyCode(this)">
+                                <i class="fas fa-copy mr-1"></i> Copy
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="code-content hidden">
+                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                            <i class="fas fa-info-circle mr-1"></i> 
+                            Route-specific middleware is only applied to specified routes.
+                        </p>
+                        
+                        <div class="code-block">
+                            <pre class="bg-gray-800 text-gray-200 p-4 rounded-md"><code class="language-python">from expressify import Expressify
+from functools import wraps
+
+app = Expressify()
+
+# Route-specific middleware example
+def validate_id(req, res, next):
+    """Validate that the id parameter is a number"""
+    try:
+        user_id = int(req.params.get('id'))
+        if user_id <= 0:
+            return res.status(400).json({
+                'error': 'Invalid ID',
+                'message': 'ID must be a positive number'
+            })
+    except (ValueError, TypeError):
+        return res.status(400).json({
+            'error': 'Invalid ID',
+            'message': 'ID must be a number'
+        })
+    
+    # Call the next middleware/route handler
+    return next()
+
+# Apply route-specific middleware
+@app.get('/user/:id', [validate_id])
+def get_user(req, res):
+    user_id = int(req.params.get('id'))
+    
+    # Example user data
+    user = {
+        'id': user_id,
+        'name': 'User ' + str(user_id),
+        'email': f'user{user_id}@example.com'
+    }
+    
+    return res.json(user)
+
+# Authentication middleware as a decorator
+def require_auth(api_key='abc123'):
+    """Decorator to require authentication for a specific route"""
+    def decorator(handler):
+        @wraps(handler)
+        def wrapped_handler(req, res):
+            # Check for API key
+            if req.get_header('x-api-key') != api_key:
+                return res.status(401).json({
+                    'error': 'Authentication required',
+                    'message': 'Invalid or missing API key'
+                })
+            
+            # Call the original handler
+            return handler(req, res)
+        return wrapped_handler
+    return decorator
+
+# Apply decorator middleware
+@app.get('/admin/dashboard')
+@require_auth(api_key='admin123')
+def admin_dashboard(req, res):
+    return res.json({
+        'message': 'Admin dashboard',
+        'sensitive_data': 'This is sensitive data that requires authentication'
+    })
+
+if __name__ == '__main__':
+    app.listen(port=3000)
+    print("Server running on port 3000")</code></pre>
+                            <button class="copy-button" onclick="copyCode(this)">
+                                <i class="fas fa-copy mr-1"></i> Copy
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                    <h3 class="font-semibold flex items-center text-blue-800 dark:text-blue-300 mb-2">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        Common Middleware Use Cases
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                        <div class="bg-white dark:bg-gray-700 p-3 rounded shadow-sm">
+                            <h4 class="font-medium mb-1 text-primary-700 dark:text-primary-400">Authentication</h4>
+                            <p class="text-gray-600 dark:text-gray-400">Verify user identity before allowing access to protected routes</p>
+                        </div>
+                        <div class="bg-white dark:bg-gray-700 p-3 rounded shadow-sm">
+                            <h4 class="font-medium mb-1 text-primary-700 dark:text-primary-400">Logging</h4>
+                            <p class="text-gray-600 dark:text-gray-400">Record request details and response times for monitoring</p>
+                        </div>
+                        <div class="bg-white dark:bg-gray-700 p-3 rounded shadow-sm">
+                            <h4 class="font-medium mb-1 text-primary-700 dark:text-primary-400">Error Handling</h4>
+                            <p class="text-gray-600 dark:text-gray-400">Catch and process errors to return appropriate responses</p>
+                        </div>
+                        <div class="bg-white dark:bg-gray-700 p-3 rounded shadow-sm">
+                            <h4 class="font-medium mb-1 text-primary-700 dark:text-primary-400">CORS</h4>
+                            <p class="text-gray-600 dark:text-gray-400">Add Cross-Origin Resource Sharing headers to enable cross-origin requests</p>
+                        </div>
+                        <div class="bg-white dark:bg-gray-700 p-3 rounded shadow-sm">
+                            <h4 class="font-medium mb-1 text-primary-700 dark:text-primary-400">Rate Limiting</h4>
+                            <p class="text-gray-600 dark:text-gray-400">Restrict request frequency to prevent abuse or API overload</p>
+                        </div>
+                        <div class="bg-white dark:bg-gray-700 p-3 rounded shadow-sm">
+                            <h4 class="font-medium mb-1 text-primary-700 dark:text-primary-400">Request Validation</h4>
+                            <p class="text-gray-600 dark:text-gray-400">Validate request data before it reaches the route handlers</p>
+                        </div>
+                        <div class="bg-white dark:bg-gray-700 p-3 rounded shadow-sm">
+                            <h4 class="font-medium mb-1 text-primary-700 dark:text-primary-400">Compression</h4>
+                            <p class="text-gray-600 dark:text-gray-400">Compress response data to reduce bandwidth and improve performance</p>
+                        </div>
+                        <div class="bg-white dark:bg-gray-700 p-3 rounded shadow-sm">
+                            <h4 class="font-medium mb-1 text-primary-700 dark:text-primary-400">Body Parsing</h4>
+                            <p class="text-gray-600 dark:text-gray-400">Parse request bodies (JSON, form data) and make data available to handlers</p>
+                        </div>
+                        <div class="bg-white dark:bg-gray-700 p-3 rounded shadow-sm">
+                            <h4 class="font-medium mb-1 text-primary-700 dark:text-primary-400">Security Headers</h4>
+                            <p class="text-gray-600 dark:text-gray-400">Add security-related HTTP headers to strengthen application security</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Featured Examples -->
+        <section class="mb-16">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-8 overflow-hidden relative">
+                <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-primary-300/20 to-blue-300/20 rounded-full filter blur-3xl transform translate-x-1/2 -translate-y-1/3"></div>
+                <div class="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-br from-purple-300/20 to-green-300/20 rounded-full filter blur-3xl transform -translate-x-1/3 translate-y-1/2"></div>
+                
+                <div class="relative">
+                    <h2 class="text-2xl font-bold mb-8 pb-2 border-b border-gray-200 dark:border-gray-700 flex items-center">
+                        <div class="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center mr-3">
+                            <i class="fas fa-star text-primary-600 dark:text-primary-400"></i>
+                        </div>
+                        Featured Examples
+                    </h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Basic Routing Example -->
+                        <div class="group relative bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                            <div class="absolute inset-0 bg-gradient-to-br from-primary-500/5 to-blue-500/5 dark:from-primary-500/10 dark:to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                            <div class="p-6 relative">
+                                <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-primary-500 to-blue-600 text-white flex items-center justify-center mb-4 shadow-lg transform group-hover:scale-110 transition-transform">
+                                    <i class="fas fa-route text-lg"></i>
+                                </div>
+                                <h3 class="text-xl font-bold mb-2 text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">Basic Routing</h3>
+                                <p class="text-gray-600 dark:text-gray-300 mb-4">Learn how to define routes with path parameters and handle different HTTP methods.</p>
+                                
+                                <div class="bg-gray-800 rounded-lg overflow-hidden mb-4">
+                                    <div class="px-4 py-2 bg-gray-900 text-xs text-gray-400 flex justify-between items-center">
+                                        <span>routes.py</span>
+                                        <button class="copy-button text-gray-500 hover:text-white" onclick="copyCode(this.parentElement.parentElement.querySelector('code'))">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                    <pre class="text-xs p-4 text-gray-300 overflow-x-auto"><code class="language-python">from expressify import Expressify
+
+app = Expressify()
+
+# Simple route
+@app.get('/')
+def home(req, res):
+    return res.send('Welcome to Expressify!')
+
+# Route with parameters
+@app.get('/users/:id')
+def get_user(req, res):
+    user_id = req.params['id']
+    return res.json({
+        'id': user_id, 
+        'name': 'John Doe'
+    })
+
+# REST API routes
+@app.get('/api/products')
+def get_products(req, res):
+    return res.json([
+        {'id': 1, 'name': 'Laptop'},
+        {'id': 2, 'name': 'Phone'}
+    ])
+
+@app.post('/api/products')
+def create_product(req, res):
+    new_product = req.body
+    return res.status(201).json({
+        'id': 3, 
+        'name': new_product['name']
+    })
+
+app.listen(port=3000)</code></pre>
+                                </div>
+                                
+                                <a href="#basic-routing" class="inline-block text-primary-600 dark:text-primary-400 font-medium hover:underline mt-2 group-hover:translate-x-1 transition-transform">
+                                    View example <i class="fas fa-arrow-right ml-1 text-xs"></i>
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <!-- Middleware Example -->
+                        <div class="group relative bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                            <div class="absolute inset-0 bg-gradient-to-br from-green-500/5 to-teal-500/5 dark:from-green-500/10 dark:to-teal-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                            <div class="p-6 relative">
+                                <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-green-500 to-teal-600 text-white flex items-center justify-center mb-4 shadow-lg transform group-hover:scale-110 transition-transform">
+                                    <i class="fas fa-layer-group text-lg"></i>
+                                </div>
+                                <h3 class="text-xl font-bold mb-2 text-gray-900 dark:text-white group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">Middleware</h3>
+                                <p class="text-gray-600 dark:text-gray-300 mb-4">Implement authentication, logging, and request processing with middleware.</p>
+                                
+                                <div class="bg-gray-800 rounded-lg overflow-hidden mb-4">
+                                    <div class="px-4 py-2 bg-gray-900 text-xs text-gray-400 flex justify-between items-center">
+                                        <span>error_handling.py</span>
+                                        <button class="copy-button text-gray-500 hover:text-white" onclick="copyCode(this.parentElement.parentElement.querySelector('code'))">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                    <pre class="text-xs p-4 text-gray-300 overflow-x-auto"><code class="language-python">from expressify import Expressify
+
+app = Expressify()
+
+# Error handling middleware
+def error_middleware(req, res, next):
+    try:
+        return next()
+    except Exception as e:
+        if isinstance(e, ValueError):
+            return res.status(400).json({
+                'error': 'Bad Request',
+                'message': str(e)
+            })
+        else:
+            # Log the error
+            print(f"Error: {str(e)}")
+            return res.status(500).json({
+                'error': 'Internal Server Error',
+                'message': 'Something went wrong'
+            })
+
+# Apply globally
+app.use(error_middleware)
+
+@app.get('/api/users/:id')
+def get_user(req, res):
+    user_id = req.params['id']
+    
+    # Simulate database lookup
+    if user_id == '999':
+        raise ValueError('User not found')
+    
+    if not user_id.isdigit():
+        raise ValueError('Invalid user ID')
+        
+    return res.json({'id': user_id, 'name': 'John Doe'})</code></pre>
+                                </div>
+                                
+                                <a href="#middleware" class="inline-block text-green-600 dark:text-green-400 font-medium hover:underline mt-2 group-hover:translate-x-1 transition-transform">
+                                    View example <i class="fas fa-arrow-right ml-1 text-xs"></i>
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <!-- Template Rendering Example -->
+                        <div class="group relative bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                            <div class="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-indigo-500/5 dark:from-purple-500/10 dark:to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                            <div class="p-6 relative">
+                                <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-500 to-indigo-600 text-white flex items-center justify-center mb-4 shadow-lg transform group-hover:scale-110 transition-transform">
+                                    <i class="fas fa-file-code text-lg"></i>
+                                </div>
+                                <h3 class="text-xl font-bold mb-2 text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">Static Files</h3>
+                                <p class="text-gray-600 dark:text-gray-300 mb-4">Serve static files and render dynamic HTML content with ease.</p>
+                                
+                                <div class="bg-gray-800 rounded-lg overflow-hidden mb-4">
+                                    <div class="px-4 py-2 bg-gray-900 text-xs text-gray-400 flex justify-between items-center">
+                                        <span>static_files.py</span>
+                                        <button class="copy-button text-gray-500 hover:text-white" onclick="copyCode(this.parentElement.parentElement.querySelector('code'))">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                    <pre class="text-xs p-4 text-gray-300 overflow-x-auto"><code class="language-python">from expressify import Expressify
+import os
+
+app = Expressify()
+
+# Serve static files from the 'public' directory
+app.serve_static('public')
+
+# Dynamic route that renders HTML
+@app.get('/dashboard')
+def dashboard(req, res):
+    username = req.query.get('user', 'Guest')
+    return res.html(f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Dashboard</title>
+        <link rel="stylesheet" href="/styles.css">
+    </head>
+    <body>
+        <h1>Welcome, {username}!</h1>
+        <p>This is your dashboard</p>
+        <script src="/app.js"></script>
+    </body>
+    </html>
+    """)
+
+# Ensure the public directory exists
+if not os.path.exists('public'):
+    os.makedirs('public')
+
+app.listen(port=3000)</code></pre>
+                                </div>
+                                
+                                <a href="#static-files" class="inline-block text-purple-600 dark:text-purple-400 font-medium hover:underline mt-2 group-hover:translate-x-1 transition-transform">
+                                    View example <i class="fas fa-arrow-right ml-1 text-xs"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- More Examples -->
+        <div>
+            <h2 class="text-2xl font-bold mb-6 flex items-center">
+                <span class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white mr-2">
+                    <i class="fas fa-th-large"></i>
+                </span>
+                More Examples
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <a href="#" class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow card-hover">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-lg flex items-center justify-center text-red-600 dark:text-red-400 mr-4">
+                            <i class="fas fa-file-code text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold">Template Rendering</h3>
+                    </div>
+                    <p class="text-gray-600 dark:text-gray-300 mb-4">Learn how to use Jinja2 templates with Expressify.</p>
+                    <div class="text-primary-600 dark:text-primary-400 font-medium flex items-center mt-2">
+                        <span>View example</span>
+                        <i class="fas fa-arrow-right ml-2 transition-transform group-hover:translate-x-1"></i>
+                    </div>
+                </a>
+                
+                <a href="#" class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow card-hover">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg flex items-center justify-center text-yellow-600 dark:text-yellow-400 mr-4">
+                            <i class="fas fa-file-signature text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold">Form Handling</h3>
+                    </div>
+                    <p class="text-gray-600 dark:text-gray-300 mb-4">Process form submissions and validate input data.</p>
+                    <div class="text-primary-600 dark:text-primary-400 font-medium flex items-center mt-2">
+                        <span>View example</span>
+                        <i class="fas fa-arrow-right ml-2 transition-transform group-hover:translate-x-1"></i>
+                    </div>
+                </a>
+                
+                <a href="#" class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow card-hover">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center text-green-600 dark:text-green-400 mr-4">
+                            <i class="fas fa-database text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold">Database Integration</h3>
+                    </div>
+                    <p class="text-gray-600 dark:text-gray-300 mb-4">Connect to databases and perform CRUD operations.</p>
+                    <div class="text-primary-600 dark:text-primary-400 font-medium flex items-center mt-2">
+                        <span>View example</span>
+                        <i class="fas fa-arrow-right ml-2 transition-transform group-hover:translate-x-1"></i>
+                    </div>
+                </a>
+                
+                <a href="#" class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow card-hover">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center text-purple-600 dark:text-purple-400 mr-4">
+                            <i class="fas fa-user-lock text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold">Authentication</h3>
+                    </div>
+                    <p class="text-gray-600 dark:text-gray-300 mb-4">Implement user authentication and session management.</p>
+                    <div class="text-primary-600 dark:text-primary-400 font-medium flex items-center mt-2">
+                        <span>View example</span>
+                        <i class="fas fa-arrow-right ml-2 transition-transform group-hover:translate-x-1"></i>
+                    </div>
+                </a>
+                
+                <a href="#" class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow card-hover">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-pink-100 dark:bg-pink-900/30 rounded-lg flex items-center justify-center text-pink-600 dark:text-pink-400 mr-4">
+                            <i class="fas fa-file-upload text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold">File Uploads</h3>
+                    </div>
+                    <p class="text-gray-600 dark:text-gray-300 mb-4">Handle file uploads and process uploaded files.</p>
+                    <div class="text-primary-600 dark:text-primary-400 font-medium flex items-center mt-2">
+                        <span>View example</span>
+                        <i class="fas fa-arrow-right ml-2 transition-transform group-hover:translate-x-1"></i>
+                    </div>
+                </a>
+                
+                <a href="#" class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow card-hover">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-teal-100 dark:bg-teal-900/30 rounded-lg flex items-center justify-center text-teal-600 dark:text-teal-400 mr-4">
+                            <i class="fas fa-comments text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold">WebSockets</h3>
+                    </div>
+                    <p class="text-gray-600 dark:text-gray-300 mb-4">Real-time communication with WebSockets.</p>
+                    <div class="text-primary-600 dark:text-primary-400 font-medium flex items-center mt-2">
+                        <span>View example</span>
+                        <i class="fas fa-arrow-right ml-2 transition-transform group-hover:translate-x-1"></i>
+                    </div>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Community Examples Banner -->
+        <div class="mt-16 bg-gradient-to-r from-primary-600 to-blue-600 text-white rounded-xl p-8 shadow-lg relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-white opacity-10 rounded-full transform translate-x-1/4 -translate-y-1/4"></div>
+            <div class="relative z-10 flex flex-col md:flex-row items-center justify-between">
+                <div class="mb-6 md:mb-0">
+                    <h3 class="text-2xl font-bold mb-2">Community Examples</h3>
+                    <p class="text-white/90 max-w-xl">Explore examples created by the Expressify community or share your own projects built with Expressify.</p>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <a href="https://github.com/itsdhruvrawat/expressify/tree/main/examples" class="bg-white text-primary-700 px-6 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors shadow-md">
+                        Browse Examples
+                    </a>
+                    <a href="https://github.com/itsdhruvrawat/expressify/issues/new" class="border border-white px-6 py-3 rounded-lg font-medium hover:bg-white/10 transition-colors">
+                        Share Your Example
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- API Authentication Example -->
+        <div id="api-auth" class="mt-16 scroll-mt-20">
+            <h2 class="text-2xl font-bold mb-6 pb-2 border-b border-gray-200 dark:border-gray-700 flex items-center">
+                <span class="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mr-3">
+                    <i class="fas fa-key text-purple-600 dark:text-purple-400"></i>
+                </span>
+                API Authentication
+            </h2>
+            
+            <p class="mb-6">Secure your API routes with a simple authentication middleware that protects sensitive endpoints.</p>
+            
+            <div class="bg-gray-100 dark:bg-gray-800 p-6 rounded-lg overflow-hidden code-block">
+                <div class="relative">
+                    <pre><code class="language-python">from expressify import Expressify
+
+app = Expressify()
+
+# API Key authentication middleware
+def auth_middleware(req, res, next):
+    """Check for API key on protected routes"""
+    if req.path.startswith('/protected'):
+        api_key = req.get_header('x-api-key')
+        
+        if not api_key:
+            return res.status(401).json({
+                'error': 'Authentication required',
+                'message': 'Missing API key'
+            })
+        
+        if api_key != 'valid_key':
+            return res.status(403).json({
+                'error': 'Access denied',
+                'message': 'Invalid API key'
+            })
+            
+        # If authentication passes, add user info to request
+        req.user = {'id': 123, 'role': 'user'}
+    
+    # Continue to next middleware or route handler
+    return next()
+
+# Apply the middleware globally
+app.use(auth_middleware)
+
+# Protected route requiring authentication
+@app.get('/protected/data')
+def protected_data(req, res):
+    # req.user is available because of auth_middleware
+    return res.json({
+        'message': 'You have access to protected data',
+        'user_id': req.user['id'],
+        'role': req.user['role']
+    })
+
+# Public route (no authentication required)
+@app.get('/public/data')
+def public_data(req, res):
+    return res.json({
+        'message': 'This is public data',
+        'timestamp': '2023-06-15T12:00:00Z'
+    })
+
+if __name__ == '__main__':
+    app.listen(port=3000)
+    print("Server running on port 3000")</code></pre>
+                    <button class="copy-button" onclick="copyCode(this.parentElement.querySelector('code'))">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="mt-6 bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg text-sm">
+                <h4 class="font-semibold flex items-center text-blue-800 dark:text-blue-300 mb-2">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    Testing API Authentication
+                </h4>
+                <p class="mb-2 text-gray-700 dark:text-gray-300">To test protected routes, include the API key in your request headers:</p>
+                <pre class="bg-gray-800 text-gray-300 p-3 rounded text-xs overflow-x-auto"><code>curl -H "X-API-Key: valid_key" http://localhost:3000/protected/data</code></pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12 mt-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Expressify</h3>
+                    <p class="text-gray-400">A lightweight Express.js-inspired web framework for Python</p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-bold mb-4">Documentation</h4>
+                    <ul class="space-y-2">
+                        <li><a href="getting-started.html" class="text-gray-400 hover:text-white transition-colors">Getting Started</a></li>
+                        <li><a href="examples.html" class="text-gray-400 hover:text-white transition-colors">Examples</a></li>
+                        <li><a href="api-reference.html" class="text-gray-400 hover:text-white transition-colors">API Reference</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-bold mb-4">Resources</h4>
+                    <ul class="space-y-2">
+                        <li><a href="https://github.com/itsdhruvrawat/expressify" class="text-gray-400 hover:text-white transition-colors">GitHub</a></li>
+                        <li><a href="https://pypi.org/user/dhruvrawat/" class="text-gray-400 hover:text-white transition-colors">PyPI</a></li>
+                        <li><a href="about.html" class="text-gray-400 hover:text-white transition-colors">About</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-bold mb-4">Author</h4>
+                    <p class="text-gray-400 mb-2">Dhruv Rawat</p>
+                    <div class="flex space-x-4">
+                        <a href="https://github.com/itsdhruvrawat" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-github text-xl"></i>
+                        </a>
+                        <a href="mailto:dhruvrwt12@gmail.com" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fas fa-envelope text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2024 Expressify. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript for mobile menu toggle and theme toggle -->
+    <script>
+        // Copy code functionality
+        function copyCode(button) {
+            const pre = button.previousElementSibling;
+            const code = pre.textContent;
+            
+            navigator.clipboard.writeText(code).then(() => {
+                const originalText = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                button.classList.add('bg-green-500');
+                
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.classList.remove('bg-green-500');
+                }, 2000);
+            });
+        }
+        
+        // Tab switching functionality
+        function switchTab(tabGroup, tabIndex) {
+            // Get all tabs and content in this group
+            const tabs = document.querySelectorAll(`[data-tab-group="${tabGroup}"] .code-tab`);
+            const contents = document.querySelectorAll(`[data-tab-group="${tabGroup}"] .code-content`);
+            
+            // Hide all content and deactivate all tabs
+            tabs.forEach(tab => tab.classList.remove('active'));
+            contents.forEach(content => content.classList.add('hidden'));
+            
+            // Activate selected tab and show content
+            tabs[tabIndex].classList.add('active');
+            contents[tabIndex].classList.remove('hidden');
+        }
+        
+        // Mobile menu toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const menu = document.getElementById('menu');
+            
+            if (mobileMenuButton) {
+                mobileMenuButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    console.log('Mobile menu button clicked');
+                    menu.classList.toggle('hidden');
+                    
+                    // Animate the menu items
+                    const menuItems = menu.querySelectorAll('li');
+                    if (!menu.classList.contains('hidden')) {
+                        menuItems.forEach((item, index) => {
+                            item.style.opacity = '0';
+                            item.style.transform = 'translateY(-10px)';
+                            item.style.transition = `opacity 0.3s ease, transform 0.3s ease`;
+                            
+                            setTimeout(() => {
+                                item.style.opacity = '1';
+                                item.style.transform = 'translateY(0)';
+                            }, 100 + (index * 50));
+                        });
+                    }
+                });
+            } else {
+                console.error('Mobile menu button not found');
+            }
+        });
+
+        // Theme toggle functionality
+        function setTheme(isDark) {
+            if (isDark) {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        // Check for saved theme preference or prefer-color-scheme
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const savedTheme = localStorage.getItem('theme');
+        
+        // Set dark theme by default
+        if (savedTheme === 'light') {
+            setTheme(false);
+        } else {
+            setTheme(true);
+        }
+
+        // Theme toggle buttons - both mobile and desktop use the same function
+        document.getElementById('theme-toggle').addEventListener('click', () => {
+            const isDark = document.documentElement.classList.contains('dark');
+            setTheme(!isDark);
+        });
+
+        document.getElementById('theme-toggle-mobile').addEventListener('click', () => {
+            const isDark = document.documentElement.classList.contains('dark');
+            setTheme(!isDark);
+        });
+
+        // Add animation on scroll
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-fade-in');
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+        
+        document.querySelectorAll('.example-card, section').forEach(section => {
+            section.style.opacity = '0';
+            section.style.transform = 'translateY(20px)';
+            section.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
+            observer.observe(section);
+        });
+        
+        // Initialize all tab groups
+        document.querySelectorAll('[data-tab-group]').forEach(group => {
+            const groupName = group.getAttribute('data-tab-group');
+            switchTab(groupName, 0); // Default to first tab
+        });
+    </script>
+</body>
+</html> 

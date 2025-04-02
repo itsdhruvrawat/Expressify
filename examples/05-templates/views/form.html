@@ -1,0 +1,57 @@
+{% extends "layout.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+    <h1>{{ title }}</h1>
+    
+    {% if message %}
+        <div class="alert alert-success">
+            {{ message }}
+        </div>
+    {% endif %}
+    
+    <div class="card">
+        <form action="/form" method="post">
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="message">Message:</label>
+                <textarea id="message" name="message" rows="4"></textarea>
+            </div>
+            
+            <button type="submit" class="btn">Submit</button>
+        </form>
+    </div>
+    
+    <h2>How Form Handling Works</h2>
+    <div class="card">
+        <p>This form is processed by a route handler that:</p>
+        <ol>
+            <li>Receives the form data in the <code>req.body</code> object</li>
+            <li>Processes the data (in a real app, it would save to a database)</li>
+            <li>Redirects back to this page with a success message</li>
+        </ol>
+        <pre style="background-color: #f4f4f4; padding: 10px; border-radius: 4px; overflow-x: auto;">
+@app.post('/form')
+def handle_form(req, res):
+    # Get form data
+    name = req.body.get('name', '')
+    email = req.body.get('email', '')
+    message = req.body.get('message', '')
+    
+    # Process data...
+    
+    # Redirect with success message
+    res.redirect(f'/form?message=Thanks for your submission, {name}!')
+        </pre>
+    </div>
+{% endblock %}

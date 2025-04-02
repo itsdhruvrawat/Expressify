@@ -1,0 +1,59 @@
+{% extends "layout.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+    <h1>{{ title }}</h1>
+    <div class="card">
+        <h2>{{ message }}</h2>
+        <p>{{ description }}</p>
+    </div>
+    
+    <h2>Features</h2>
+    <ul>
+        {% for feature in features %}
+            <li>{{ feature }}</li>
+        {% endfor %}
+    </ul>
+    
+    <h2>Examples</h2>
+    <div class="card">
+        <p>Check out these examples:</p>
+        <ul>
+            <li><a href="/products">Product List</a> - View all products with filtering</li>
+            <li><a href="/products/1">Product Detail</a> - View details of a specific product</li>
+            <li><a href="/users">User List</a> - View all users</li>
+            <li><a href="/users/1">User Detail</a> - View details of a specific user</li>
+            <li><a href="/form">Form Example</a> - Try submitting a form</li>
+        </ul>
+    </div>
+    
+    <h2>Template Code</h2>
+    <div class="card">
+        <p>This page is rendered using the following template:</p>
+        <pre style="background-color: #f4f4f4; padding: 10px; border-radius: 4px; overflow-x: auto;">
+{% raw %}
+{% extends "layout.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+    <h1>{{ title }}</h1>
+    <div class="card">
+        <h2>{{ message }}</h2>
+        <p>{{ description }}</p>
+    </div>
+    
+    <h2>Features</h2>
+    <ul>
+        {% for feature in features %}
+            <li>{{ feature }}</li>
+        {% endfor %}
+    </ul>
+    
+    <!-- More HTML here -->
+{% endblock %}
+{% endraw %}
+        </pre>
+    </div>
+{% endblock %}
