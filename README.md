@@ -23,9 +23,9 @@ Issues, bugs, and incomplete features may be present. We welcome feedback, bug r
 Expressify is a minimalist web framework for Python inspired by Express.js. It provides a simple and intuitive API for building web applications and APIs with minimal boilerplate.
 
 ```python
-from expressify import Expressify
+from expressify import expressify
 
-app = Expressify()
+app = expressify()
 
 @app.get('/')
 def home(req, res):
