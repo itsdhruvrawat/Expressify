@@ -60,7 +60,7 @@ There are many ways to contribute to Expressify:
    
 2. **Clone your fork**:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/expressify.git
+   git clone https://github.com/itsdhruvrawat/expressify.git
    cd expressify
    ```
 
