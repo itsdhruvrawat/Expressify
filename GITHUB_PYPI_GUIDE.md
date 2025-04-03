@@ -21,7 +21,7 @@ This guide covers step-by-step instructions for:
 ### Step 2: Clone the repository locally (if you haven't already)
 ```bash
 # Clone the repository to your local machine
-git clone https://github.com/YOUR_USERNAME/expressify.git
+git clone https://github.com/itsdhruvrawat/expressify.git
 cd expressify
 ```
 
@@ -35,7 +35,7 @@ cd path/to/expressify
 git init
 
 # Add your GitHub repository as remote
-git remote add origin https://github.com/YOUR_USERNAME/expressify.git
+git remote add origin https://github.com/itsdhruvrawat/expressify.git
 ```
 
 ## 2. Pushing Your Code to GitHub
