@@ -34,7 +34,7 @@ def home(req, res):
 @app.get('/api/users/:id')
 def get_user(req, res):
     user_id = req.params['id']
-    return res.json({'id': user_id, 'name': 'John Doe'})
+    return res.json({'id': user_id, 'name': 'Dhruv Rawat'})
 
 app.listen(port=3000)
 ```
